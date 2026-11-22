@@ -1,0 +1,68 @@
+<!-- Frame in frame. Frames fly out of the picture. Its word and colours are the clip's vars.
+     The picture is drawn below. For a real one, put <img id="photo" hidden src="../../assets/<file>"> before the canvas. -->
+<style>
+  #film { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .faces { position: absolute; visibility: hidden; }
+  #face-1 { font-family: 'Archivo Black', sans-serif; }
+</style>
+<canvas id="film"></canvas>
+<script type="module">
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v))
+const out = x => 1 - Math.pow(1 - clamp(x), 4)
+const io = x => (x = clamp(x), x < .5 ? 8 * x ** 4 : 1 - Math.pow(-2 * x + 2, 4) / 2)
+const ph = (u, a, b) => clamp((u - a) / (b - a))
+const TAU = Math.PI * 2
+const HEAVY = s => `400 ${s}px 'Archivo Black', sans-serif`
+function fit(c, text, width, max, font) { c.font = font(100); const s = Math.min(max, 100 * width / Math.max(1, c.measureText(text).width)); c.font = font(s); return s }
+function seeded(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296 } }
+function cover(c, p, x, y, w, h, z = 1, dx = 0, dy = 0) { const s = Math.max(w / p.width, h / p.height) * z, sw = w / s, sh = h / s; c.drawImage(p, clamp((p.width - sw) / 2 + dx * sw, 0, p.width - sw), clamp((p.height - sh) / 2 + dy * sh, 0, p.height - sh), sw, sh, x, y, w, h) }
+
+function piece(c, w, h, u, L, P) {
+  const cs = [L.bg, L.fg, L.ac], n = 12, go = u * 6
+  c.fillStyle = cs[((Math.floor(go) - n) % 3 + 3) % 3]; c.fillRect(0, 0, w, h)
+  for (let i = n; i >= 0; i--) {
+    const p = (i + go % 1) / n, s = .34 + Math.pow(p, 1.7) * 2.6, k = ((i - Math.floor(go)) % 3 + 3) % 3
+    c.save(); c.translate(w / 2, h * .45); c.rotate(p * (.25 + .9 * Math.sin(TAU * u))); c.fillStyle = cs[k]; c.beginPath(); c.roundRect(-w * s / 2, -h * .86 * s / 2, w * s, h * .86 * s, w * .07 * s); c.fill(); c.restore()
+  }
+  const s = .5 + .03 * Math.sin(TAU * 2 * u), pw = w * s, pp = pw * 1.42
+  c.save(); c.translate(w / 2, h * .42); c.rotate(.035 * Math.sin(TAU * u)); c.fillStyle = '#fff'; c.beginPath(); c.roundRect(-pw / 2 - 16, -pp / 2 - 16, pw + 32, pp + 32, 48); c.fill(); c.beginPath(); c.roundRect(-pw / 2, -pp / 2, pw, pp, 34); c.clip(); cover(c, P, -pw / 2, -pp / 2, pw, pp, 1.08 + .08 * Math.sin(TAU * u)); c.restore()
+  const k = out(ph(u, .16, .26)) * (1 - io(ph(u, .9, .98)))
+  if (k > .003) { const bw = w * .72, bh = h * .1; c.save(); c.translate(w / 2, h * .705); c.rotate(-.03); c.scale(k, k); c.fillStyle = '#12111c'; c.beginPath(); c.roundRect(-bw / 2, -bh / 2, bw, bh, bh / 2); c.fill(); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; fit(c, L.word, bw * .74, bh * .66, HEAVY); c.fillText(L.word, 0, bh * .03); c.restore() }
+}
+
+function picture(c, L, r) {
+  let g = c.createLinearGradient(0, 0, 0, 1080); g.addColorStop(0, '#2a63c9'); g.addColorStop(.45, '#8ec6ee'); g.addColorStop(.75, '#ffe1b0'); g.addColorStop(1, '#ff9d57'); c.fillStyle = g; c.fillRect(0, 0, 720, 1080)
+  g = c.createRadialGradient(360, 520, 20, 360, 520, 262); g.addColorStop(0, '#fffbe8'); g.addColorStop(.98, '#ffcf4a'); g.addColorStop(1, 'rgba(255,200,70,0)'); c.fillStyle = g; c.beginPath(); c.arc(360, 520, 262, 0, 7); c.fill()
+  c.fillStyle = 'rgba(255,255,255,.75)'; for (const [x, y, s] of [[110, 210, 1], [560, 150, 1.2], [620, 380, .7], [60, 440, .7]]) { c.beginPath(); for (let i = 0; i < 5; i++) c.ellipse(x + (i - 2) * 34 * s, y + Math.abs(i - 2) * 7 * s, 40 * s, 20 * s, 0, 0, 7); c.fill() }
+  c.fillStyle = '#0d2d2b'; for (let i = 0; i < 12; i++) { const x = i * 66 - 10 + r() * 22, h = 90 + r() * 130; for (let k = 0; k < 4; k++) { c.beginPath(); c.moveTo(x, 960 - h + k * h * .2); c.lineTo(x + 18 + k * 13, 960 - h + (k + 1.5) * h * .22); c.lineTo(x - 18 - k * 13, 960 - h + (k + 1.5) * h * .22); c.fill() } }
+  c.fillStyle = '#0a1f20'; c.fill(new Path2D('M0 950 C160 930 260 960 360 950 C500 936 600 960 720 930 L720 1080 L0 1080 Z'))
+  const k = '#12111c', limb = (p, w) => { c.strokeStyle = k; c.lineWidth = w; c.lineCap = c.lineJoin = 'round'; c.beginPath(); p.forEach((q, i) => i ? c.lineTo(...q) : c.moveTo(...q)); c.stroke() }
+  limb([[372, 470], [352, 560]], 74); limb([[352, 572], [430, 620], [410, 706]], 42); limb([[346, 572], [268, 620], [214, 560]], 42); limb([[372, 452], [470, 420], [540, 350]], 31); limb([[356, 454], [270, 430], [196, 366]], 31)
+  c.fillStyle = k; c.beginPath(); c.arc(392, 386, 40, 0, 7); c.fill(); c.fillStyle = '#e8432c'; c.fill(new Path2D('M350 384 C352 336 432 332 434 378 L470 386 L434 394 Z'))
+  limb([[404, 712], [450, 716]], 24); limb([[212, 556], [176, 522]], 24)
+  c.save(); c.translate(320, 690); c.rotate(-.5); c.fillStyle = '#e8432c'; c.beginPath(); c.roundRect(-120, 46, 250, 24, 12); c.fill(); c.fillStyle = '#12111c'; c.beginPath(); c.arc(-76, 82, 17, 0, 7); c.arc(86, 82, 17, 0, 7); c.fill(); c.restore()
+}
+
+// A photo put in the markup is ready before the first frame
+const photo = document.getElementById('photo')
+if (photo) await photo.decode()
+
+let film, c, w, h, sheet, look
+export function setup(ctx) {
+  film = document.getElementById('film')
+  w = film.width = ctx.stage.width
+  h = film.height = ctx.stage.height
+  c = film.getContext('2d')
+  const v = ctx.vars
+  look = { word: v.word ?? 'Again', bg: v.bg ?? '#00a37a', fg: v.fg ?? '#fff4d6', ac: v.ac ?? '#ffcb2f' }
+  const drawn = document.createElement('canvas')
+  drawn.width = 720
+  drawn.height = 1080
+  picture(drawn.getContext('2d'), look, seeded(7))
+  sheet = photo ?? drawn
+}
+export function draw(t, ctx) {
+  c.reset()
+  piece(c, w, h, (t / ctx.d) % 1, look, sheet)
+}
+</script>

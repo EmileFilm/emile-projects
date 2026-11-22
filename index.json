@@ -1,0 +1,455 @@
+{
+  "version": 1,
+  "projects": [
+    {
+      "id": "running-rows",
+      "title": "Running rows",
+      "line": "One loud word runs past itself in rows, a picture cuts in, then the word stands whole: for a drop, a sale or a launch.",
+      "kind": "Kinetic type",
+      "seconds": 8,
+      "aspect": "9:16",
+      "preview": {
+        "path": "projects/running-rows/preview.mp4",
+        "bytes": 388849,
+        "sha256": "c1aa8989f7b947058f12c8226a1ba161c839c6e4b5569dee0be7cbf9a4f113c5"
+      },
+      "poster": {
+        "path": "projects/running-rows/preview.jpg",
+        "bytes": 58183,
+        "sha256": "3afc4627a4ddbcb10e7a27f85737c0bdf81bb1f1d5800e9de7534c4d1200dec5"
+      },
+      "beats": {
+        "in": 0.08,
+        "hit": 0.2,
+        "hold": 0.9
+      },
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "4451d76493c64a4194130a9e9208fd62dfd7f1a06617476621972a409eaf33e9",
+          "bytes": 415
+        },
+        {
+          "path": "README.md",
+          "sha256": "4fe9f07f8f98c4646f2b33feff673037f89b90d8d049bfa801baa226d0d87bf8",
+          "bytes": 1038
+        },
+        {
+          "path": "clips/running-rows/clip.html",
+          "sha256": "e4e027712213a06c24c52f5f2317d7d59c4e89f708e6b10a974d8f1a2180f05b",
+          "bytes": 6514
+        },
+        {
+          "path": "emile.json",
+          "sha256": "0017d7bdaf8c5c4cac02e7b6caf46695dd4db909575465f5d30aba8ec4af2ee9",
+          "bytes": 967
+        }
+      ]
+    },
+    {
+      "id": "typed-bloom",
+      "title": "Typed bloom",
+      "line": "A picture set in characters and typed over again by a sweep of light, with a name on a bar: for tech, data, AI and anything mysterious.",
+      "kind": "ASCII",
+      "seconds": 8,
+      "aspect": "9:16",
+      "preview": {
+        "path": "projects/typed-bloom/preview.mp4",
+        "bytes": 436628,
+        "sha256": "59ccf5e086998b841409e558f91aeeaa79ef3bda1e1af6c8dc5a644fca9e2656"
+      },
+      "poster": {
+        "path": "projects/typed-bloom/preview.jpg",
+        "bytes": 176724,
+        "sha256": "d11723e62c290ecd5324f7b5d81d634169c2c4ca865e1890b8438068261ad7ed"
+      },
+      "beats": {
+        "in": 0.3,
+        "hit": 0.4,
+        "hold": 0.88
+      },
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "4a417dea62f7266664ec8744f8566f87d97b7d283b9a2589f7d3861b55de65de",
+          "bytes": 414
+        },
+        {
+          "path": "README.md",
+          "sha256": "19de63f153c80debe38eb5158393e610c1ef7bf74987f8f35b160f50fc8aad3f",
+          "bytes": 977
+        },
+        {
+          "path": "clips/typed-bloom/clip.html",
+          "sha256": "95e1ce70ba57f45c49b595d2fbbb543f267a7ced11e92c72afe9f9e0e27472fb",
+          "bytes": 8690
+        },
+        {
+          "path": "emile.json",
+          "sha256": "3efd3cc51afaf89602830c67f5e964b61016e82c9164d3a508d9557e85779d69",
+          "bytes": 979
+        }
+      ]
+    },
+    {
+      "id": "round-and-round",
+      "title": "Round and round",
+      "line": "A name circles a picture in rings that turn against each other, then takes its place: for a logo, a badge or a soft launch.",
+      "kind": "Logo",
+      "seconds": 8,
+      "aspect": "9:16",
+      "preview": {
+        "path": "projects/round-and-round/preview.mp4",
+        "bytes": 447111,
+        "sha256": "363a84b664ee6d83c9eaff5c9d0ea729e9e97816271e58e1d61384ccd05b6d1c"
+      },
+      "poster": {
+        "path": "projects/round-and-round/preview.jpg",
+        "bytes": 92360,
+        "sha256": "5b920a9f640ed076e20bf3b428f555b12ee3c6d0cfa444d102a2db5037a1f430"
+      },
+      "beats": {
+        "in": 0.4,
+        "hit": 0.5,
+        "hold": 0.86
+      },
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "025062dadb8e1efd97e2e6b06d9f2b8ef9f1fd86e6de239e97af62746bf30ae6",
+          "bytes": 418
+        },
+        {
+          "path": "README.md",
+          "sha256": "50b90d6714652994200c81d9ae7059e881824f13e48e4079524af13ee32cdf4a",
+          "bytes": 984
+        },
+        {
+          "path": "clips/round-and-round/clip.html",
+          "sha256": "1c4e6aeadc12173e0e3db504b404949c8d395fba189e700d505758d0994a589b",
+          "bytes": 6746
+        },
+        {
+          "path": "emile.json",
+          "sha256": "7eb73e88f897ff5bea36a6bd30436d21e08ca597fc5a17249e75b10c03ff68f0",
+          "bytes": 983
+        }
+      ]
+    },
+    {
+      "id": "torn-edition",
+      "title": "Torn edition",
+      "line": "A picture is torn into bands and snaps back still, the word stamped on paper strips: for fashion, an edition or a night out.",
+      "kind": "Glitch",
+      "seconds": 8,
+      "aspect": "9:16",
+      "preview": {
+        "path": "projects/torn-edition/preview.mp4",
+        "bytes": 215486,
+        "sha256": "6f92a1500961b7b262a3300b72b3a7dc1d7228217bae704e7c0c7784399bf146"
+      },
+      "poster": {
+        "path": "projects/torn-edition/preview.jpg",
+        "bytes": 36649,
+        "sha256": "df70bc0aa253628e4340d9d553202663a1bfcda23a43991a7bd2dbc1a14f036f"
+      },
+      "beats": {
+        "in": 0.2,
+        "hit": 0.3,
+        "hold": 0.92
+      },
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "22058d16cc085841a39bff8536a22248f992a8a224c8dd085ecfbaeb27f776ac",
+          "bytes": 415
+        },
+        {
+          "path": "README.md",
+          "sha256": "89795fa41410eb9cb6bfcaaa99cc0dcf10234d272216f5c7cb484025ae1406bd",
+          "bytes": 1024
+        },
+        {
+          "path": "clips/torn-edition/clip.html",
+          "sha256": "935c9ed3637a4655beaeb6f3e3676c5f675757c9eef2c42e828161685972619e",
+          "bytes": 7024
+        },
+        {
+          "path": "emile.json",
+          "sha256": "a1cf6cf7ec4d6a3394c7ea5cde1433550ca9c7b837d593610e7e74e566b80ee6",
+          "bytes": 971
+        }
+      ]
+    },
+    {
+      "id": "quarter-turns",
+      "title": "Quarter turns",
+      "line": "A wall of quarter circles turns in step and opens for a name: for design, architecture, food or any calm brand.",
+      "kind": "Geometry",
+      "seconds": 8,
+      "aspect": "9:16",
+      "preview": {
+        "path": "projects/quarter-turns/preview.mp4",
+        "bytes": 346923,
+        "sha256": "ead1d3f4cc9e0b1bec9c52b6a4e87fa67bbd79e3f5a4db5aba98e88cc5e13900"
+      },
+      "poster": {
+        "path": "projects/quarter-turns/preview.jpg",
+        "bytes": 35892,
+        "sha256": "df989ef610fe5bd1057a133250ce63c32e575a62ba6dcd2ecc2b5421f2480b72"
+      },
+      "beats": {
+        "in": 0.28,
+        "hit": 0.38,
+        "hold": 0.86
+      },
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "da055c422b2a7b270033e41e54ecc1d17eb6f3d67730ed3e7c77e26d4dbabf80",
+          "bytes": 459
+        },
+        {
+          "path": "README.md",
+          "sha256": "ddc376f1ea6986e00f41a7e99cd5b879807385d0f45ae92dcfd19eaa2aba1715",
+          "bytes": 812
+        },
+        {
+          "path": "clips/quarter-turns/clip.html",
+          "sha256": "a719fdd349c02f00a330283412a6ab9989cc31bab5f3330d08db2ace351f24b7",
+          "bytes": 2932
+        },
+        {
+          "path": "emile.json",
+          "sha256": "fa977c69b778f7958fc2eb52d02184575a53c48f45a96bf74aaf732d14144600",
+          "bytes": 987
+        }
+      ]
+    },
+    {
+      "id": "built-in-front-of-you",
+      "title": "Built in front of you",
+      "line": "A button unfolds into a product screen, fills itself in, is pressed and folds back: for an app, a shop or a SaaS launch.",
+      "kind": "Product demo",
+      "seconds": 8,
+      "aspect": "9:16",
+      "preview": {
+        "path": "projects/built-in-front-of-you/preview.mp4",
+        "bytes": 165810,
+        "sha256": "24463900e73328cfc1436f7c38e95de079f9f8b38d64da113735927e1fb1c149"
+      },
+      "poster": {
+        "path": "projects/built-in-front-of-you/preview.jpg",
+        "bytes": 29577,
+        "sha256": "bc15ffd49b391407ae91508b2eb3b014f5bc74c5a85a339595aea23e3f694bd8"
+      },
+      "beats": {
+        "in": 0.13,
+        "hit": 0.72,
+        "hold": 0.88
+      },
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "ae6fc6f4e1b04a651512d312f3c6099bfcc9726c3599566edf20a41989725bba",
+          "bytes": 467
+        },
+        {
+          "path": "README.md",
+          "sha256": "2fe13044793e614f73fdb43deb9c2be8bac6a5e2900f983c68c3879f0db968d8",
+          "bytes": 1110
+        },
+        {
+          "path": "clips/built-in-front-of-you/clip.html",
+          "sha256": "282dee6a5451d620f079ada8bdb69ae0f894424669d39bb4919b89c4e78bc2e1",
+          "bytes": 7747
+        },
+        {
+          "path": "emile.json",
+          "sha256": "a04f0945a5a630798345d3548791e43b40c054f6977ae4ea571e1e1bbfd51fef",
+          "bytes": 1052
+        }
+      ]
+    },
+    {
+      "id": "breathing-dots",
+      "title": "Breathing dots",
+      "line": "A picture printed in dots that swell in rings, with a name rising under it: for beauty, flowers, music and print.",
+      "kind": "Halftone",
+      "seconds": 8,
+      "aspect": "9:16",
+      "preview": {
+        "path": "projects/breathing-dots/preview.mp4",
+        "bytes": 489486,
+        "sha256": "ae16b2aa0986f8f9c171770f784abaa26daff019d07fe0a27a6ecb18fac9e31b"
+      },
+      "poster": {
+        "path": "projects/breathing-dots/preview.jpg",
+        "bytes": 93279,
+        "sha256": "cd552dc67bb65378f5e588cf004f65f7fb6fbf14931ddc3eb621190a0a8aa4bf"
+      },
+      "beats": {
+        "in": 0.3,
+        "hit": 0.42,
+        "hold": 0.88
+      },
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "54f6093f5ec9025862c398653c5b6a31093b400f0efc38c92d0e7979aef102d8",
+          "bytes": 417
+        },
+        {
+          "path": "README.md",
+          "sha256": "4dccbbd9233acece2e73ed05a3458f3f5dcaac8f629e4d96501907771112c206",
+          "bytes": 967
+        },
+        {
+          "path": "clips/breathing-dots/clip.html",
+          "sha256": "dcbb5d8a3bbb18e5a8f6f9e20889f9b46fac12b8611a995bb32e5160e6aad683",
+          "bytes": 6060
+        },
+        {
+          "path": "emile.json",
+          "sha256": "cf6692f8580558fa476a2cf88d6c7fc5536037769797075a3b03b69cbba305cc",
+          "bytes": 965
+        }
+      ]
+    },
+    {
+      "id": "up-to-a-hundred",
+      "title": "Up to a hundred",
+      "line": "A number climbs as a colour fills the frame, then bursts into the picture and the name: for a result, a milestone or sold out.",
+      "kind": "Numbers",
+      "seconds": 8,
+      "aspect": "9:16",
+      "preview": {
+        "path": "projects/up-to-a-hundred/preview.mp4",
+        "bytes": 173334,
+        "sha256": "109fd7dadc6c34be7926c196d7e5b45d08f42e12b27bf034bd9f464906fb37af"
+      },
+      "poster": {
+        "path": "projects/up-to-a-hundred/preview.jpg",
+        "bytes": 39535,
+        "sha256": "16d75c071ee2a6470b39d343f7bb03f4d0da59998d4f9e5ba3f4805102aeb36b"
+      },
+      "beats": {
+        "in": 0.42,
+        "hit": 0.55,
+        "hold": 0.9
+      },
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "91d6d4d247c4b2c47c477ecefbd5c33fc6dc8ce4622075d8544df9848b5b0616",
+          "bytes": 418
+        },
+        {
+          "path": "README.md",
+          "sha256": "eef45789c711548fddb128a5e3a7c0111e836320dedb8eba2ea125f4169589dc",
+          "bytes": 999
+        },
+        {
+          "path": "clips/up-to-a-hundred/clip.html",
+          "sha256": "9a87c3a835d98b0722f092ae75215ff9c6e926b9621138df537807a3f16d57c3",
+          "bytes": 5609
+        },
+        {
+          "path": "emile.json",
+          "sha256": "b961f31803739b9f577c52d90fee490ef7a616a3e228f4a439ec6578e72ec0e3",
+          "bytes": 983
+        }
+      ]
+    },
+    {
+      "id": "through-the-slits",
+      "title": "Through the slits",
+      "line": "Nine slits open one after another on a picture, as in Reynaud’s drum, and a name stands in the middle: for a trailer, a place or a night.",
+      "kind": "Reveal",
+      "seconds": 8,
+      "aspect": "9:16",
+      "preview": {
+        "path": "projects/through-the-slits/preview.mp4",
+        "bytes": 367282,
+        "sha256": "83b1357833bdf52998f5e91d943242dfb7fc5d7294ae55be81f13c23cc907154"
+      },
+      "poster": {
+        "path": "projects/through-the-slits/preview.jpg",
+        "bytes": 52899,
+        "sha256": "afe84d1d5e4edf183d6910425aabc79687a46716f084353614bdf2b7cd8c546b"
+      },
+      "beats": {
+        "in": 0.17,
+        "hit": 0.4,
+        "hold": 0.72
+      },
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "e1c2e17e25f0bb209116460c3b5cc1eaf168b6b7ad6aeca5aa138b94b63cd6d5",
+          "bytes": 420
+        },
+        {
+          "path": "README.md",
+          "sha256": "7a551b82691208cc5724b0d9248c54018255fbc70133279228dde8fbb5dcbec5",
+          "bytes": 1050
+        },
+        {
+          "path": "clips/through-the-slits/clip.html",
+          "sha256": "32d69392f4e437e2f787cb41e622a2c032be8f77f0bbf56856fa540b50ceafe0",
+          "bytes": 7241
+        },
+        {
+          "path": "emile.json",
+          "sha256": "408be339a4dcaa2b10d4ad79fb38eecfc445050099d416b0e5f31a78de8ed0af",
+          "bytes": 1004
+        }
+      ]
+    },
+    {
+      "id": "frame-in-frame",
+      "title": "Frame in frame",
+      "line": "Frames fly out of the picture without end while it floats still in the middle: for sport, music and anything that loops.",
+      "kind": "Loop",
+      "seconds": 8,
+      "aspect": "9:16",
+      "preview": {
+        "path": "projects/frame-in-frame/preview.mp4",
+        "bytes": 357896,
+        "sha256": "ee12c2bf1e43149e9645ff1fa7c29ef5f48762cec00e58763a8bd4540d3762d3"
+      },
+      "poster": {
+        "path": "projects/frame-in-frame/preview.jpg",
+        "bytes": 49686,
+        "sha256": "7340e0a96829089d8e05155a4a34544e0553ec4d0bca84421a623fd47ffa0e88"
+      },
+      "beats": {
+        "in": 0.16,
+        "hit": 0.26,
+        "hold": 0.9
+      },
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "30762df4e957350222fb933449883244e563c321b285106ad7a4f5fb23ca88c6",
+          "bytes": 417
+        },
+        {
+          "path": "README.md",
+          "sha256": "ebd83b85cd62602e7636f708ea54f2fdc0bd44c82b860d5008ebc26fd64a5a76",
+          "bytes": 953
+        },
+        {
+          "path": "clips/frame-in-frame/clip.html",
+          "sha256": "1eec8ba0d8d7552dfd56483deb57d522859f3c88878e5bcc0930a94e7afb6a92",
+          "bytes": 5719
+        },
+        {
+          "path": "emile.json",
+          "sha256": "33bab8dec452d8577d7a445a022941e72a778b583a1ca0640a8191e94d5c4ee5",
+          "bytes": 972
+        }
+      ]
+    }
+  ]
+}

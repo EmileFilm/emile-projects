@@ -1,0 +1,87 @@
+<!-- Torn edition. Bands of the picture tear sideways and snap back. Its word and colours are the clip's vars.
+     The picture is drawn below. For a real one, put <img id="photo" hidden src="../../assets/<file>"> before the canvas. -->
+<style>
+  #film { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .faces { position: absolute; visibility: hidden; }
+  #face-1 { font-family: 'Archivo Black', sans-serif; }
+</style>
+<canvas id="film"></canvas>
+<script type="module">
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v))
+const out = x => 1 - Math.pow(1 - clamp(x), 4)
+const io = x => (x = clamp(x), x < .5 ? 8 * x ** 4 : 1 - Math.pow(-2 * x + 2, 4) / 2)
+const ph = (u, a, b) => clamp((u - a) / (b - a))
+const HEAVY = s => `400 ${s}px 'Archivo Black', sans-serif`
+function fit(c, text, width, max, font) { c.font = font(100); const s = Math.min(max, 100 * width / Math.max(1, c.measureText(text).width)); c.font = font(s); return s }
+function soft(c, blur, colour) { const k = c.getTransform().a; c.shadowColor = colour; c.shadowBlur = blur * 2 * k; c.shadowOffsetX = 5000 * k; c.translate(-5000, 0); c.fillStyle = '#000' }
+function seeded(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296 } }
+function cover(c, p, x, y, w, h, z = 1, dx = 0, dy = 0) { const s = Math.max(w / p.width, h / p.height) * z, sw = w / s, sh = h / s; c.drawImage(p, clamp((p.width - sw) / 2 + dx * sw, 0, p.width - sw), clamp((p.height - sh) / 2 + dy * sh, 0, p.height - sh), sw, sh, x, y, w, h) }
+
+function piece(c, w, h, u, L, P) {
+  const n = 18, st = Math.floor(u * 72), half = (u * 2) % 1, tearing = u > 1 / 240 && half < .2 && st % 6 !== 5
+  const hit = tearing ? 1 - half * 2.2 : 0
+  c.fillStyle = L.bg; c.fillRect(0, 0, w, h)
+  const z = 1.06 + .16 * Math.sin(Math.PI * u) ** 2
+  for (let i = 0; i < n; i++) {
+    const o = Math.sin(i * 12.9 + st * 7.3) * w * .3 * hit, y0 = Math.floor(h * i / n), y1 = Math.floor(h * (i + 1) / n)
+    c.save(); c.beginPath(); c.rect(0, y0, w, y1 - y0); c.clip()
+    for (const k of [-1, 0, 1]) cover(c, P, o + k * w, 0, w + 1, h, z, 0, -1)
+    if (Math.abs(o) > w * .13) { c.globalCompositeOperation = 'multiply'; c.fillStyle = L.ac; c.fillRect(0, y0, w, y1 - y0) }
+    c.restore()
+  }
+  // The word on torn strips, so it reads over any picture
+  const W = L.word.toUpperCase(), sh = h * .118
+  ;[[.66, 0, 2], [.47, .1, .93], [.28, .24, .95]].forEach(([y, a, b], i) => {
+    const k = i ? out(ph(u, a, a + .05)) * (1 - io(ph(u, b - .05, b))) : 1; if (k < .004) return
+    const jig = Math.sin(st * 3.1 + i * 2) * w * .05 * hit, yy = h * y, ww = w * (i === 1 ? .9 : .82), x = i === 1 ? w * .1 : 0
+    c.save(); c.beginPath(); c.rect(x + (i === 1 ? ww * (1 - k) : 0), yy, ww * k, sh); c.clip(); c.translate(jig, 0)
+    c.fillStyle = i === 1 ? L.ac : L.bg; c.beginPath(); c.moveTo(x - w * .1, yy); c.lineTo(x + ww + w * .1, yy); c.lineTo(x + ww + w * .1, yy + sh); for (let q = 24; q >= 0; q--) c.lineTo(x - w * .1 + (ww + w * .2) * q / 24, yy + sh - (q % 2 ? 12 : 0)); c.fill()
+    c.fillStyle = i === 1 ? L.bg : L.fg; c.textBaseline = 'middle'; fit(c, W, w * .7, sh * .8, HEAVY); c.fillText(W, x + w * .06, yy + sh * .5); c.restore()
+  })
+}
+
+function picture(c, L, r) {
+  let g = c.createLinearGradient(0, 0, 720, 760); g.addColorStop(0, '#f7d9ae'); g.addColorStop(.6, '#e3a878'); g.addColorStop(1, '#b9744e'); c.fillStyle = g; c.fillRect(0, 0, 720, 1080)
+  for (let i = 0; i < 900; i++) { c.fillStyle = `rgba(${r() > .5 ? '255,240,215' : '90,45,20'},${r() * .06})`; c.fillRect(r() * 720, r() * 860, 4 + r() * 46, 2 + r() * 20) }
+  g = c.createLinearGradient(0, 860, 0, 1080); g.addColorStop(0, '#8d5236'); g.addColorStop(1, '#4e2818'); c.fillStyle = g; c.fillRect(0, 866, 720, 214)
+  c.save(); soft(c, 6, 'rgba(70,24,30,.45)'); c.beginPath(); c.moveTo(372, 880); c.lineTo(520, 640); c.quadraticCurveTo(590, 420, 640, 300); c.arc(672, 250, 44, 2.4, 6); c.lineTo(720, 430); c.lineTo(720, 900); c.fill(); c.restore()
+  const D = '#1540c4'
+  const dress = new Path2D('M286 420 C262 520 236 640 130 884 C210 936 520 946 604 890 C500 700 448 560 420 420 Z')
+  g = c.createLinearGradient(130, 0, 604, 0); g.addColorStop(0, '#2f6bff'); g.addColorStop(.35, D); g.addColorStop(.75, '#0c2478'); g.addColorStop(1, '#06123f'); c.fillStyle = g; c.fill(dress)
+  c.save(); c.clip(dress); for (let i = 0; i < 15; i++) { const x = 120 + i * 35; c.strokeStyle = i % 2 ? 'rgba(120,165,255,.5)' : 'rgba(2,8,48,.5)'; c.lineWidth = 8 + r() * 18; c.beginPath(); c.moveTo(352 + (i - 7) * 6, 430); c.bezierCurveTo(350 + (i - 7) * 12, 600, x + 10, 720, x + r() * 24, 950); c.stroke() } c.restore()
+  const arm = (p, w, k) => { c.strokeStyle = k; c.lineWidth = w; c.lineCap = c.lineJoin = 'round'; c.beginPath(); p.forEach((q, i) => i ? c.lineTo(...q) : c.moveTo(...q)); c.stroke() }
+  g = c.createLinearGradient(270, 0, 440, 0); g.addColorStop(0, '#2f6bff'); g.addColorStop(1, '#0c2478'); c.fillStyle = g; c.fill(new Path2D('M282 270 C330 252 390 252 432 274 C440 330 428 390 422 430 L286 430 C276 380 272 320 282 270 Z'))
+  for (const [x, f] of [[278, 1], [436, -1]]) { c.fillStyle = f > 0 ? '#3a74ff' : '#0f2b8c'; c.beginPath(); c.ellipse(x, 306, 58, 54, 0, 0, 7); c.fill() }
+  arm([[250, 340], [186, 420], [292, 448]], 30, '#b9714a'); arm([[462, 338], [520, 440], [470, 540]], 30, '#8e4f31')
+  c.fillStyle = '#b9714a'; c.fillRect(338, 206, 40, 62)
+  c.fillStyle = '#c58058'; c.beginPath(); c.ellipse(356, 170, 47, 58, .06, 0, 7); c.fill()
+  c.save(); c.beginPath(); c.ellipse(356, 170, 47, 58, .06, 0, 7); c.clip(); c.fillStyle = 'rgba(80,30,16,.4)'; c.fillRect(366, 90, 60, 160); c.restore()
+  c.fillStyle = '#190d0a'; for (const [x, y, p, q] of [[354, 126, 55, 34], [352, 70, 38, 36], [306, 160, 12, 34], [405, 160, 11, 32]]) { c.beginPath(); c.ellipse(x, y, p, q, 0, 0, 7); c.fill() }
+  c.fillStyle = '#f2c14a'; c.beginPath(); c.arc(312, 206, 9, 0, 7); c.arc(402, 206, 9, 0, 7); c.fill()
+  c.fillStyle = '#d4402a'; c.beginPath(); c.ellipse(358, 198, 14, 6, 0, 0, 7); c.fill()
+  c.fillStyle = '#190d0a'; c.beginPath(); c.ellipse(276, 922, 46, 15, 0, 0, 7); c.ellipse(438, 924, 46, 15, 0, 0, 7); c.fill()
+}
+
+// A photo put in the markup is ready before the first frame
+const photo = document.getElementById('photo')
+if (photo) await photo.decode()
+
+let film, c, w, h, sheet, look
+export function setup(ctx) {
+  film = document.getElementById('film')
+  w = film.width = ctx.stage.width
+  h = film.height = ctx.stage.height
+  c = film.getContext('2d')
+  const v = ctx.vars
+  look = { word: v.word ?? 'Edition', bg: v.bg ?? '#0d0d0d', fg: v.fg ?? '#ffffff', ac: v.ac ?? '#ff3d6e' }
+  const drawn = document.createElement('canvas')
+  drawn.width = 720
+  drawn.height = 1080
+  picture(drawn.getContext('2d'), look, seeded(7))
+  sheet = photo ?? drawn
+}
+export function draw(t, ctx) {
+  c.reset()
+  piece(c, w, h, (t / ctx.d) % 1, look, sheet)
+}
+</script>

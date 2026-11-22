@@ -1,0 +1,44 @@
+{
+  "$schema": "https://emile.dev/schema/project-6.json",
+  "version": 6,
+  "revision": 2,
+  "project": {
+    "id": "b53a2a5a-3555-48a1-a06a-617248798c9c",
+    "title": "Round and round",
+    "idea": "A name circles a picture in rings that turn against each other, then takes its place: for a logo, a badge or a soft launch.",
+    "aspect": "9:16",
+    "fps": {
+      "num": 30,
+      "den": 1
+    },
+    "language": "en",
+    "duration": null,
+    "seed": 927585823,
+    "series": null,
+    "created_with": "emile-engine 0.1.0 on darwin"
+  },
+  "materials": [],
+  "facts": [],
+  "timeline": {
+    "clips": [
+      {
+        "id": "round-and-round",
+        "type": "code",
+        "name": "Round and round",
+        "frames": [
+          0,
+          240
+        ],
+        "drawn": 240,
+        "vars": {
+          "word": "soft launch",
+          "bg": "#2b2bd8",
+          "fg": "#f7f2e6",
+          "ac": "#ff8a5c"
+        }
+      }
+    ],
+    "blends": []
+  },
+  "packs": []
+}

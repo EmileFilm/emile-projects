@@ -1,0 +1,114 @@
+{
+  "projects": [
+    {
+      "id": "running-rows",
+      "title": "Running rows",
+      "kind": "Kinetic type",
+      "line": "One loud word runs past itself in rows, a picture cuts in, then the word stands whole: for a drop, a sale or a launch.",
+      "beats": {
+        "in": 0.08,
+        "hit": 0.2,
+        "hold": 0.9
+      }
+    },
+    {
+      "id": "typed-bloom",
+      "title": "Typed bloom",
+      "kind": "ASCII",
+      "line": "A picture set in characters and typed over again by a sweep of light, with a name on a bar: for tech, data, AI and anything mysterious.",
+      "beats": {
+        "in": 0.3,
+        "hit": 0.4,
+        "hold": 0.88
+      }
+    },
+    {
+      "id": "round-and-round",
+      "title": "Round and round",
+      "kind": "Logo",
+      "line": "A name circles a picture in rings that turn against each other, then takes its place: for a logo, a badge or a soft launch.",
+      "beats": {
+        "in": 0.4,
+        "hit": 0.5,
+        "hold": 0.86
+      }
+    },
+    {
+      "id": "torn-edition",
+      "title": "Torn edition",
+      "kind": "Glitch",
+      "line": "A picture is torn into bands and snaps back still, the word stamped on paper strips: for fashion, an edition or a night out.",
+      "beats": {
+        "in": 0.2,
+        "hit": 0.3,
+        "hold": 0.92
+      }
+    },
+    {
+      "id": "quarter-turns",
+      "title": "Quarter turns",
+      "kind": "Geometry",
+      "line": "A wall of quarter circles turns in step and opens for a name: for design, architecture, food or any calm brand.",
+      "beats": {
+        "in": 0.28,
+        "hit": 0.38,
+        "hold": 0.86
+      }
+    },
+    {
+      "id": "built-in-front-of-you",
+      "title": "Built in front of you",
+      "kind": "Product demo",
+      "line": "A button unfolds into a product screen, fills itself in, is pressed and folds back: for an app, a shop or a SaaS launch.",
+      "beats": {
+        "in": 0.13,
+        "hit": 0.72,
+        "hold": 0.88
+      }
+    },
+    {
+      "id": "breathing-dots",
+      "title": "Breathing dots",
+      "kind": "Halftone",
+      "line": "A picture printed in dots that swell in rings, with a name rising under it: for beauty, flowers, music and print.",
+      "beats": {
+        "in": 0.3,
+        "hit": 0.42,
+        "hold": 0.88
+      }
+    },
+    {
+      "id": "up-to-a-hundred",
+      "title": "Up to a hundred",
+      "kind": "Numbers",
+      "line": "A number climbs as a colour fills the frame, then bursts into the picture and the name: for a result, a milestone or sold out.",
+      "beats": {
+        "in": 0.42,
+        "hit": 0.55,
+        "hold": 0.9
+      }
+    },
+    {
+      "id": "through-the-slits",
+      "title": "Through the slits",
+      "kind": "Reveal",
+      "line": "Nine slits open one after another on a picture, as in Reynaud’s drum, and a name stands in the middle: for a trailer, a place or a night.",
+      "beats": {
+        "in": 0.17,
+        "hit": 0.4,
+        "hold": 0.72
+      }
+    },
+    {
+      "id": "frame-in-frame",
+      "title": "Frame in frame",
+      "kind": "Loop",
+      "line": "Frames fly out of the picture without end while it floats still in the middle: for sport, music and anything that loops.",
+      "beats": {
+        "in": 0.16,
+        "hit": 0.26,
+        "hold": 0.9
+      }
+    }
+  ]
+}

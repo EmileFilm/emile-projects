@@ -1,0 +1,46 @@
+{
+  "$schema": "https://emile.dev/schema/project-6.json",
+  "version": 6,
+  "revision": 2,
+  "project": {
+    "id": "1a972c2a-3960-4671-84e7-707a9b7647d2",
+    "title": "Built in front of you",
+    "idea": "A button unfolds into a product screen, fills itself in, is pressed and folds back: for an app, a shop or a SaaS launch.",
+    "aspect": "9:16",
+    "fps": {
+      "num": 30,
+      "den": 1
+    },
+    "language": "en",
+    "duration": null,
+    "seed": 2046081213,
+    "series": null,
+    "created_with": "emile-engine 0.1.0 on darwin"
+  },
+  "materials": [],
+  "facts": [],
+  "timeline": {
+    "clips": [
+      {
+        "id": "built-in-front-of-you",
+        "type": "code",
+        "name": "Built in front of you",
+        "frames": [
+          0,
+          240
+        ],
+        "drawn": 240,
+        "vars": {
+          "word": "Try it",
+          "word2": "#ffffff",
+          "bg": "#cfe3ff",
+          "fg": "#10224d",
+          "ac": "#2f6bff",
+          "mid": "#a3c4ff"
+        }
+      }
+    ],
+    "blends": []
+  },
+  "packs": []
+}

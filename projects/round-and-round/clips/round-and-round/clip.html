@@ -1,0 +1,79 @@
+<!-- Round and round. Rings of the name turn round the picture. Its word and colours are the clip's vars.
+     The picture is drawn below. For a real one, put <img id="photo" hidden src="../../assets/<file>"> before the canvas. -->
+<style>
+  #film { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .faces { position: absolute; visibility: hidden; }
+  #face-1 { font-family: 'Archivo Black', sans-serif; }
+  #face-2 { font-family: 'Fraunces', sans-serif; }
+</style>
+<canvas id="film"></canvas>
+<script type="module">
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v))
+const io = x => (x = clamp(x), x < .5 ? 8 * x ** 4 : 1 - Math.pow(-2 * x + 2, 4) / 2)
+const ph = (u, a, b) => clamp((u - a) / (b - a))
+const TAU = Math.PI * 2
+const HEAVY = s => `400 ${s}px 'Archivo Black', sans-serif`
+const SHOW = s => `italic 800 ${s}px 'Fraunces', serif`
+function fit(c, text, width, max, font) { c.font = font(100); const s = Math.min(max, 100 * width / Math.max(1, c.measureText(text).width)); c.font = font(s); return s }
+function soft(c, blur, colour) { const k = c.getTransform().a; c.shadowColor = colour; c.shadowBlur = blur * 2 * k; c.shadowOffsetX = 5000 * k; c.translate(-5000, 0); c.fillStyle = '#000' }
+function seeded(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296 } }
+function cover(c, p, x, y, w, h, z = 1, dx = 0, dy = 0) { const s = Math.max(w / p.width, h / p.height) * z, sw = w / s, sh = h / s; c.drawImage(p, clamp((p.width - sw) / 2 + dx * sw, 0, p.width - sw), clamp((p.height - sh) / 2 + dy * sh, 0, p.height - sh), sw, sh, x, y, w, h) }
+
+function piece(c, w, h, u, L, P) {
+  c.fillStyle = L.bg; c.fillRect(0, 0, w, h)
+  const R = w * .35, cx = w / 2, cy = h * .47, gap = w * .115, t = (L.word + ' · ').toUpperCase(), chars = [...t], s = gap * .74
+  c.font = HEAVY(s); c.textBaseline = 'middle'; c.textAlign = 'center'
+  const wide = c.measureText(t).width
+  for (let j = 0; j < 9; j++) {
+    const rr = R + gap * (j + .62); if (rr > h * .62) break
+    const n = Math.max(2, Math.round(TAU * rr / wide)), step = TAU / (n * chars.length), turn = (j % 2 ? -1 : 1) * TAU / n * (u + Math.sin(TAU * u) * .12) * 2
+    c.fillStyle = j % 3 === 1 ? L.ac : L.fg
+    for (let i = 0; i < n * chars.length; i++) { const a = turn + i * step, y = cy - Math.cos(a) * rr, x = cx + Math.sin(a) * rr; if (chars[i % chars.length] === ' ' || x < -s || x > w + s || y < -s || y > h + s) continue; c.save(); c.translate(x, y); c.rotate(a); c.fillText(chars[i % chars.length], 0, 0); c.restore() }
+  }
+  const breathe = 1 + .025 * Math.sin(TAU * 2 * u), r = R * breathe
+  c.save(); c.beginPath(); c.arc(cx, cy, r, 0, 7); c.clip(); cover(c, P, cx - r, cy - r * 1.25, r * 2, r * 2.5, 1.06 + .06 * Math.sin(TAU * u)); c.restore()
+  // The name on a disc that opens over the picture
+  const k = io(ph(u, .4, .5)) * (1 - io(ph(u, .86, .96)))
+  if (k > .002) { c.save(); c.beginPath(); c.arc(cx, cy, r * k, 0, 7); c.clip(); c.fillStyle = L.ac; c.fillRect(cx - r, cy - r, r * 2, r * 2); const ws = L.word.split(' '), lines = ws.length > 1 ? [ws.slice(0, Math.ceil(ws.length / 2)).join(' '), ws.slice(Math.ceil(ws.length / 2)).join(' ')] : ws; c.fillStyle = L.bg; const long = lines.reduce((a, b) => a.length > b.length ? a : b), sz = fit(c, long, r * 1.5, r * .62, SHOW); lines.forEach((x, i) => c.fillText(x, cx, cy + (i - (lines.length - 1) / 2) * sz * .92 - sz * .04)); c.restore() }
+}
+
+function picture(c, L, r) {
+  let g = c.createLinearGradient(0, 0, 0, 1080); g.addColorStop(0, '#f4c9d8'); g.addColorStop(.55, '#ffe4d2'); g.addColorStop(.551, '#bfe6d4'); g.addColorStop(1, '#7cc3b4'); c.fillStyle = g; c.fillRect(0, 0, 720, 1080)
+  c.translate(360, 560); c.scale(.82, .82); c.translate(-372, -552)
+  c.fillStyle = 'rgba(255,255,255,.65)'; c.beginPath(); c.arc(520, 250, 150, 0, 7); c.fill()
+  c.save(); soft(c, 14, 'rgba(30,70,80,.38)'); c.beginPath(); c.moveTo(250, 860); c.lineTo(470, 860); c.lineTo(760, 980); c.lineTo(560, 1010); c.fill(); c.restore()
+  const b = new Path2D(); b.roundRect(212, 400, 280, 470, 54)
+  g = c.createLinearGradient(212, 0, 492, 0); g.addColorStop(0, '#5a2fa8'); g.addColorStop(.2, '#b78cff'); g.addColorStop(.32, '#f0e4ff'); g.addColorStop(.42, '#9a63f2'); g.addColorStop(.8, '#6a35c9'); g.addColorStop(1, '#321468'); c.fillStyle = g; c.fill(b)
+  c.save(); c.clip(b); g = c.createLinearGradient(0, 400, 0, 870); g.addColorStop(0, 'rgba(255,255,255,.75)'); g.addColorStop(.23, 'rgba(255,255,255,.35)'); g.addColorStop(.235, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(30,5,70,.45)'); c.fillStyle = g; c.fillRect(200, 400, 300, 480)
+  c.fillStyle = '#fff8ea'; c.fillRect(212, 590, 280, 168); c.fillStyle = '#2b1a52'; c.fillRect(212, 590, 280, 8); c.fillRect(212, 750, 280, 8)
+  c.strokeStyle = L.ac; c.lineWidth = 12; for (let i = 0; i < 3; i++) { c.beginPath(); c.arc(352, 674, 20 + i * 20, Math.PI * .1 * i, Math.PI * (1.25 + .1 * i)); c.stroke() }
+  g = c.createLinearGradient(212, 0, 492, 0); g.addColorStop(0, 'rgba(20,0,60,.45)'); g.addColorStop(.22, 'rgba(20,0,60,0)'); g.addColorStop(.8, 'rgba(20,0,60,0)'); g.addColorStop(1, 'rgba(20,0,60,.55)'); c.fillStyle = g; c.fillRect(212, 590, 280, 168); c.restore()
+  c.fillStyle = '#e7dcff'; c.fillRect(296, 360, 112, 48)
+  g = c.createLinearGradient(268, 0, 436, 0); g.addColorStop(0, '#6f9b0a'); g.addColorStop(.3, '#e9ff8a'); g.addColorStop(.6, '#b7e02a'); g.addColorStop(1, '#4f7208'); c.fillStyle = g; c.beginPath(); c.roundRect(268, 218, 168, 152, 22); c.fill()
+  c.strokeStyle = 'rgba(50,80,0,.35)'; c.lineWidth = 4; for (let x = 282; x < 430; x += 14) { c.beginPath(); c.moveTo(x, 236); c.lineTo(x, 360); c.stroke() }
+  g = c.createRadialGradient(550, 800, 10, 566, 830, 90); g.addColorStop(0, '#fff'); g.addColorStop(.6, '#ffb08a'); g.addColorStop(1, '#d05a36'); c.fillStyle = g; c.beginPath(); c.arc(566, 830, 74, 0, 7); c.fill()
+}
+
+// A photo put in the markup is ready before the first frame
+const photo = document.getElementById('photo')
+if (photo) await photo.decode()
+
+let film, c, w, h, sheet, look
+export function setup(ctx) {
+  film = document.getElementById('film')
+  w = film.width = ctx.stage.width
+  h = film.height = ctx.stage.height
+  c = film.getContext('2d')
+  const v = ctx.vars
+  look = { word: v.word ?? 'soft launch', bg: v.bg ?? '#2b2bd8', fg: v.fg ?? '#f7f2e6', ac: v.ac ?? '#ff8a5c' }
+  const drawn = document.createElement('canvas')
+  drawn.width = 720
+  drawn.height = 1080
+  picture(drawn.getContext('2d'), look, seeded(7))
+  sheet = photo ?? drawn
+}
+export function draw(t, ctx) {
+  c.reset()
+  piece(c, w, h, (t / ctx.d) % 1, look, sheet)
+}
+</script>

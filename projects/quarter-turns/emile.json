@@ -1,0 +1,45 @@
+{
+  "$schema": "https://emile.dev/schema/project-6.json",
+  "version": 6,
+  "revision": 2,
+  "project": {
+    "id": "327814a8-d073-4485-88c4-941366061aa2",
+    "title": "Quarter turns",
+    "idea": "A wall of quarter circles turns in step and opens for a name: for design, architecture, food or any calm brand.",
+    "aspect": "9:16",
+    "fps": {
+      "num": 30,
+      "den": 1
+    },
+    "language": "en",
+    "duration": null,
+    "seed": 904190129,
+    "series": null,
+    "created_with": "emile-engine 0.1.0 on darwin"
+  },
+  "materials": [],
+  "facts": [],
+  "timeline": {
+    "clips": [
+      {
+        "id": "quarter-turns",
+        "type": "code",
+        "name": "Quarter turns",
+        "frames": [
+          0,
+          240
+        ],
+        "drawn": 240,
+        "vars": {
+          "word": "Forma",
+          "bg": "#f2ede2",
+          "fg": "#143d31",
+          "ac": "#ff6a3d",
+          "mid": "#f0b7c6"
+        }
+      }
+    ],
+    "blends": []
+  },
+  "packs": []
+}

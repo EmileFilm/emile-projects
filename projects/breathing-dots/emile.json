@@ -1,0 +1,44 @@
+{
+  "$schema": "https://emile.dev/schema/project-6.json",
+  "version": 6,
+  "revision": 2,
+  "project": {
+    "id": "af595832-7db8-48ac-98a1-bdb9fbf8af08",
+    "title": "Breathing dots",
+    "idea": "A picture printed in dots that swell in rings, with a name rising under it: for beauty, flowers, music and print.",
+    "aspect": "9:16",
+    "fps": {
+      "num": 30,
+      "den": 1
+    },
+    "language": "en",
+    "duration": null,
+    "seed": 1256090195,
+    "series": null,
+    "created_with": "emile-engine 0.1.0 on darwin"
+  },
+  "materials": [],
+  "facts": [],
+  "timeline": {
+    "clips": [
+      {
+        "id": "breathing-dots",
+        "type": "code",
+        "name": "Breathing dots",
+        "frames": [
+          0,
+          240
+        ],
+        "drawn": 240,
+        "vars": {
+          "word": "Bloom",
+          "bg": "#ffd8e4",
+          "fg": "#b3123f",
+          "ac": "#0f2a8a"
+        }
+      }
+    ],
+    "blends": []
+  },
+  "packs": []
+}

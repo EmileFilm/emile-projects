@@ -1,0 +1,44 @@
+{
+  "$schema": "https://emile.dev/schema/project-6.json",
+  "version": 6,
+  "revision": 2,
+  "project": {
+    "id": "606f255f-5822-4744-9e23-5b0f2e0b8cd8",
+    "title": "Up to a hundred",
+    "idea": "A number climbs as a colour fills the frame, then bursts into the picture and the name: for a result, a milestone or sold out.",
+    "aspect": "9:16",
+    "fps": {
+      "num": 30,
+      "den": 1
+    },
+    "language": "en",
+    "duration": null,
+    "seed": 177350174,
+    "series": null,
+    "created_with": "emile-engine 0.1.0 on darwin"
+  },
+  "materials": [],
+  "facts": [],
+  "timeline": {
+    "clips": [
+      {
+        "id": "up-to-a-hundred",
+        "type": "code",
+        "name": "Up to a hundred",
+        "frames": [
+          0,
+          240
+        ],
+        "drawn": 240,
+        "vars": {
+          "word": "Sold out",
+          "bg": "#111018",
+          "fg": "#f5f2ff",
+          "ac": "#7a4dff"
+        }
+      }
+    ],
+    "blends": []
+  },
+  "packs": []
+}

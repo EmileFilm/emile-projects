@@ -1,0 +1,44 @@
+{
+  "$schema": "https://emile.dev/schema/project-6.json",
+  "version": 6,
+  "revision": 2,
+  "project": {
+    "id": "dcba2434-ec9d-4b84-a716-d4db548e7858",
+    "title": "Frame in frame",
+    "idea": "Frames fly out of the picture without end while it floats still in the middle: for sport, music and anything that loops.",
+    "aspect": "9:16",
+    "fps": {
+      "num": 30,
+      "den": 1
+    },
+    "language": "en",
+    "duration": null,
+    "seed": 1355049776,
+    "series": null,
+    "created_with": "emile-engine 0.1.0 on darwin"
+  },
+  "materials": [],
+  "facts": [],
+  "timeline": {
+    "clips": [
+      {
+        "id": "frame-in-frame",
+        "type": "code",
+        "name": "Frame in frame",
+        "frames": [
+          0,
+          240
+        ],
+        "drawn": 240,
+        "vars": {
+          "word": "Again",
+          "bg": "#00a37a",
+          "fg": "#fff4d6",
+          "ac": "#ffcb2f"
+        }
+      }
+    ],
+    "blends": []
+  },
+  "packs": []
+}

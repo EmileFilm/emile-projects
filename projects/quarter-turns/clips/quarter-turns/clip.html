@@ -1,0 +1,45 @@
+<!-- Quarter turns. Quarter circles turn a quarter, one diagonal after the next. Its word and colours are the clip's vars. -->
+<style>
+  #film { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .faces { position: absolute; visibility: hidden; }
+  #face-1 { font-family: 'Archivo Black', sans-serif; }
+</style>
+<canvas id="film"></canvas>
+<script type="module">
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v))
+const out = x => 1 - Math.pow(1 - clamp(x), 4)
+const io = x => (x = clamp(x), x < .5 ? 8 * x ** 4 : 1 - Math.pow(-2 * x + 2, 4) / 2)
+const ph = (u, a, b) => clamp((u - a) / (b - a))
+const HEAVY = s => `400 ${s}px 'Archivo Black', sans-serif`
+function fit(c, text, width, max, font) { c.font = font(100); const s = Math.min(max, 100 * width / Math.max(1, c.measureText(text).width)); c.font = font(s); return s }
+
+function piece(c, w, h, u, L) {
+  c.fillStyle = L.bg; c.fillRect(0, 0, w, h)
+  const n = 4, g = w / n, m = Math.ceil(h / g), off = (h - m * g) / 2, cs = [L.fg, L.ac, L.mid, L.fg]
+  for (let y = 0; y < m; y++) for (let x = 0; x < n; x++) {
+    const k = (x * 3 + y * 5 + (x * y) % 3) % 8, q = u * 4 + 8 - (x + y) * .045, turn = Math.floor(q) + io(ph(q % 1, .12, .62)), v = io(ph(q % 1, .12, .62))
+    c.save(); c.translate((x + .5) * g, off + (y + .5) * g); c.rotate((k % 4 + turn) * Math.PI / 2); c.fillStyle = cs[k % 4]
+    if (k === 3) { const b = Math.sin(v * Math.PI); c.beginPath(); c.arc(0, 0, g * (.5 - .16 * b), 0, 7); c.fill(); c.fillStyle = L.bg; c.beginPath(); c.arc(0, 0, g * (.2 + .06 * b), 0, 7); c.fill() }
+    else if (k === 5) { c.fillRect(-g / 2, -g / 2, g, g / 2 + 1); c.fillStyle = cs[(k + 1) % 4]; c.beginPath(); c.arc(0, 0, g / 2, 0, Math.PI); c.fill() }
+    else if (k === 6) { for (let i = 0; i < 4; i++) { c.fillStyle = i % 2 ? L.bg : cs[(x + y) % 3]; c.beginPath(); c.moveTo(-g / 2, -g / 2); c.arc(-g / 2, -g / 2, g * (1 - i * .25), 0, Math.PI / 2); c.fill() } }
+    else { c.beginPath(); c.moveTo(-g / 2, -g / 2); c.arc(-g / 2, -g / 2, g, 0, Math.PI / 2); c.fill() }
+    c.restore()
+  }
+  const k = out(ph(u, .28, .38)) * (1 - io(ph(u, .86, .96))), bh = g * 1.5
+  if (k > .002) { c.save(); c.beginPath(); c.rect(0, h / 2 - bh / 2 * k, w, bh * k); c.clip(); c.fillStyle = L.bg; c.fillRect(0, h / 2 - bh, w, bh * 2); c.fillStyle = L.fg; c.textAlign = 'center'; c.textBaseline = 'middle'; fit(c, L.word, w * .72, bh * .86, HEAVY); c.fillText(L.word, w / 2, h / 2 + bh * .03); c.restore() }
+}
+
+let film, c, w, h, sheet, look
+export function setup(ctx) {
+  film = document.getElementById('film')
+  w = film.width = ctx.stage.width
+  h = film.height = ctx.stage.height
+  c = film.getContext('2d')
+  const v = ctx.vars
+  look = { word: v.word ?? 'Forma', bg: v.bg ?? '#f2ede2', fg: v.fg ?? '#143d31', ac: v.ac ?? '#ff6a3d', mid: v.mid ?? '#f0b7c6' }
+}
+export function draw(t, ctx) {
+  c.reset()
+  piece(c, w, h, (t / ctx.d) % 1, look)
+}
+</script>
