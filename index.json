@@ -23,6 +23,18 @@
         "hit": 0.2,
         "hold": 0.9
       },
+      "prompts": {
+        "en": {
+          "path": "prompts/running-rows.en.md",
+          "bytes": 2160,
+          "sha256": "6860da6a3a8077fda4d1d56a91bddf5d1a35d8b40662da32c3db0a4dee6ba7b1"
+        },
+        "zh": {
+          "path": "prompts/running-rows.zh.md",
+          "bytes": 2339,
+          "sha256": "74e2b460f223f068febc5b0b568302853813957c1ffecbbe617d9a71034ef044"
+        }
+      },
       "files": [
         {
           "path": "AGENTS.md",
@@ -67,6 +79,18 @@
         "in": 0.3,
         "hit": 0.4,
         "hold": 0.88
+      },
+      "prompts": {
+        "en": {
+          "path": "prompts/typed-bloom.en.md",
+          "bytes": 2565,
+          "sha256": "8df616fc60daea38cccf1b0bcf1884e13a55f03df8908c1e748e81d2504278c7"
+        },
+        "zh": {
+          "path": "prompts/typed-bloom.zh.md",
+          "bytes": 2496,
+          "sha256": "705c007bcc1f97e08cc65d11ec69b7268954dde071d70d784fc17251aa89ce6b"
+        }
       },
       "files": [
         {
@@ -113,6 +137,18 @@
         "hit": 0.5,
         "hold": 0.86
       },
+      "prompts": {
+        "en": {
+          "path": "prompts/round-and-round.en.md",
+          "bytes": 2088,
+          "sha256": "630c4850c1018a347d16753a42ee78ae7f6283ab541b778cfe3b89e69345c7ba"
+        },
+        "zh": {
+          "path": "prompts/round-and-round.zh.md",
+          "bytes": 2196,
+          "sha256": "fc3968abca7d5f34bf27f698aa5ece0a22bf7d7a0444831d81788a13779575b2"
+        }
+      },
       "files": [
         {
           "path": "AGENTS.md",
@@ -157,6 +193,18 @@
         "in": 0.2,
         "hit": 0.3,
         "hold": 0.92
+      },
+      "prompts": {
+        "en": {
+          "path": "prompts/torn-edition.en.md",
+          "bytes": 2481,
+          "sha256": "6ba498da61a37655015810c769d929ae960315cb0297abfe608da6cafed33b1f"
+        },
+        "zh": {
+          "path": "prompts/torn-edition.zh.md",
+          "bytes": 2529,
+          "sha256": "3c8ce94e20a0020dd713f699aa8feb777f1af6c994d2c14be8143b889bb499a7"
+        }
       },
       "files": [
         {
@@ -203,6 +251,18 @@
         "hit": 0.38,
         "hold": 0.86
       },
+      "prompts": {
+        "en": {
+          "path": "prompts/quarter-turns.en.md",
+          "bytes": 1772,
+          "sha256": "63b3a231682080690119a7dbfd939012cf143121c6418c5c0f52b31e08176f40"
+        },
+        "zh": {
+          "path": "prompts/quarter-turns.zh.md",
+          "bytes": 1892,
+          "sha256": "141eb1e44019fc488757eddf60b3072d3adf060e003c464a5827ea306e9831f8"
+        }
+      },
       "files": [
         {
           "path": "AGENTS.md",
@@ -247,6 +307,18 @@
         "in": 0.13,
         "hit": 0.72,
         "hold": 0.88
+      },
+      "prompts": {
+        "en": {
+          "path": "prompts/built-in-front-of-you.en.md",
+          "bytes": 2471,
+          "sha256": "fe92c8f3b22f065a3addfd5ec3b8f3553b7005cfe4df0d79299f47ae9f843906"
+        },
+        "zh": {
+          "path": "prompts/built-in-front-of-you.zh.md",
+          "bytes": 2466,
+          "sha256": "2f37359e69a97954a40f6ee55eb7956f74bac8be6baedcdddaa8305cdac1b61a"
+        }
       },
       "files": [
         {
@@ -293,6 +365,18 @@
         "hit": 0.42,
         "hold": 0.88
       },
+      "prompts": {
+        "en": {
+          "path": "prompts/breathing-dots.en.md",
+          "bytes": 2183,
+          "sha256": "18561e17eb398b36e18fb8bd39246014f1021d450854c9d2076079cd4c866e46"
+        },
+        "zh": {
+          "path": "prompts/breathing-dots.zh.md",
+          "bytes": 2211,
+          "sha256": "21b6229431a557c93a7b6756f6ba15b52703fdd3bf60cf4c2e5eebe79704c1e9"
+        }
+      },
       "files": [
         {
           "path": "AGENTS.md",
@@ -337,6 +421,18 @@
         "in": 0.42,
         "hit": 0.55,
         "hold": 0.9
+      },
+      "prompts": {
+        "en": {
+          "path": "prompts/up-to-a-hundred.en.md",
+          "bytes": 2052,
+          "sha256": "3a62d7bbd41861c3fdc2c88c1affb4d925f16afc5dc63fb21a3a8752aa25033b"
+        },
+        "zh": {
+          "path": "prompts/up-to-a-hundred.zh.md",
+          "bytes": 2153,
+          "sha256": "2c36fd0c1bfcebf1c1aa21b65b73b30fdb83a6e5be11791a8e6c4cd337a96d67"
+        }
       },
       "files": [
         {
@@ -383,6 +479,18 @@
         "hit": 0.4,
         "hold": 0.72
       },
+      "prompts": {
+        "en": {
+          "path": "prompts/through-the-slits.en.md",
+          "bytes": 2077,
+          "sha256": "4edc9452e1d1cfaf0b10ca223932dd5bfce5a31e6324991dac7b44fd6a026b74"
+        },
+        "zh": {
+          "path": "prompts/through-the-slits.zh.md",
+          "bytes": 2118,
+          "sha256": "2cf1b8f3c873d4f64a096b9c4599340a3bb5ea51575160551123650ca3058204"
+        }
+      },
       "files": [
         {
           "path": "AGENTS.md",
@@ -427,6 +535,18 @@
         "in": 0.16,
         "hit": 0.26,
         "hold": 0.9
+      },
+      "prompts": {
+        "en": {
+          "path": "prompts/frame-in-frame.en.md",
+          "bytes": 1982,
+          "sha256": "c62677609371db747970442475379cfa1a11b19e69846fecdc854a231c871d98"
+        },
+        "zh": {
+          "path": "prompts/frame-in-frame.zh.md",
+          "bytes": 2088,
+          "sha256": "ffee9066b8bfb50d8e4109c453360791e92cab458194858cbbc41d00c4392d7c"
+        }
       },
       "files": [
         {

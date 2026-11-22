@@ -1,5 +1,7 @@
 // index.json: what Émile reads to show these projects and to fetch one. Each
-// project's files by path, size and SHA-256, its preview and its poster.
+// project's files by path, size and SHA-256, its preview, its poster and its
+// prompts (prompts/<id>.<language>.md, which emilefilm.com shows; they are not
+// part of the project).
 //
 //   node scripts/build.mjs [--engine <Émile's engine folder>]   (default ../Emile/engine)
 //
@@ -18,6 +20,7 @@ import { parseArgs } from 'node:util'
 const ROOT = path.resolve(import.meta.dirname, '..')
 const MAX_BYTES = 2 * 1024 * 1024
 const PREVIEWS = ['preview.mp4', 'preview.jpg']
+const LANGUAGES = ['en', 'zh']
 const { values } = parseArgs({ options: { engine: { type: 'string', default: path.join(ROOT, '..', 'Emile', 'engine') } } })
 const CLI = path.join(path.resolve(values.engine), 'emile', 'cli.mjs')
 
@@ -68,12 +71,25 @@ for (const a of about) {
   const missing = PREVIEWS.filter(p => !fs.existsSync(path.join(dir, p)))
   if (missing.length) { faults.push(`projects/${a.id} has no ${missing.join(', ')}`); continue }
   const files = walk(dir).filter(p => !PREVIEWS.includes(p)).map(p => entry(dir, p))
+  const vars = film.timeline.clips[0].vars ?? {}
+  const prompts = {}
+  for (const l of LANGUAGES) {
+    const p = `prompts/${a.id}.${l}.md`
+    if (!fs.existsSync(path.join(ROOT, p))) { faults.push(`${p} is missing`); continue }
+    // Every variable of the clip is in the prompt, and nothing that isn't one
+    const text = fs.readFileSync(path.join(ROOT, p), 'utf8'), said = new Set([...text.matchAll(/\{(\w+)\}/g)].map(m => m[1]))
+    for (const k of Object.keys(vars)) if (!said.has(k)) faults.push(`${p} does not name {${k}}`)
+    for (const k of said) if (!(k in vars) && k !== 'picture') faults.push(`${p} names {${k}}, which the clip has not`)
+    if (said.has('picture') && !/^picture: ./m.test(text)) faults.push(`${p} names {picture} and does not say what it shows`)
+    const { path: at, bytes, sha256 } = entry(ROOT, p)
+    prompts[l] = { path: at, bytes, sha256 }
+  }
   const last = Math.max(...film.timeline.clips.map(c => c.frames[1]))
   const shown = p => { const { sha256, bytes } = entry(dir, p); return { path: `projects/${a.id}/${p}`, bytes, sha256 } }
   projects.push({
     id: a.id, title: a.title, line: a.line, kind: a.kind,
     seconds: last * film.project.fps.den / film.project.fps.num, aspect: film.project.aspect,
-    preview: shown('preview.mp4'), poster: shown('preview.jpg'), beats: a.beats, files
+    preview: shown('preview.mp4'), poster: shown('preview.jpg'), beats: a.beats, prompts, files
   })
 }
 fs.rmSync(home, { recursive: true, force: true })

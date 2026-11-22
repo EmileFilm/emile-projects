@@ -17,11 +17,15 @@ In Émile they are on Home, under Remake. Open one as a project of your own, or 
 | Through the slits | Slits open on a picture, one after another | a trailer, a place |
 | Frame in frame | Frames fly out of a picture without end | sport, music, loops |
 
+## Prompts
+
+`prompts/` holds, for each project, the prompt that makes one like it, in English (`<id>.en.md`) and Chinese (`<id>.zh.md`); [emilefilm.com/examples](https://emilefilm.com/examples/) shows them with your own words and colours filled in. At the top: what the picture shows, what to ask for next, and, in Chinese, the project's words. In the text `{word}`, `{bg}`, `{fg}`, `{ac}` … are the clip's vars (their values in `emile.json`) and `{picture}` the picture. They say what the clip's code does: change one when its code changes.
+
 Every picture is drawn in code: no photographs, no brands. The typefaces are Google Fonts, named in the clips and fetched by Émile.
 
 ## Adding one
 
-`projects/<id>/` is a whole Émile project with a `README.md` that says the movement, its beats and what may change, plus `preview.mp4` and `preview.jpg` (360 × 640, no sound). Its title, line, kind and beats go in `projects.json`. Then:
+`projects/<id>/` is a whole Émile project with a `README.md` that says the movement, its beats and what may change, plus `preview.mp4` and `preview.jpg` (360 × 640, no sound). Its title, line, kind and beats go in `projects.json`, its prompts in `prompts/`. Then:
 
 ```bash
 node scripts/build.mjs      # checks each project with Émile's engine (../Emile/engine) and writes index.json
