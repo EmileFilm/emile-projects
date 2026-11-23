@@ -1,0 +1,105 @@
+<style>
+  #ground { position: absolute; inset: 0; background: radial-gradient(90% 70% at 50% 46%, #2d2823, #181513 48%, #100f0e); }
+  /* Floor, dotted trail and splash strokes are one continuous drawing, painted per frame. */
+  #trail-and-floor { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+  #ball { position: absolute; left: 0; top: 0; width: 90px; height: 90px; border-radius: 50%;
+    background: #d9541e; transform-origin: 50% 100%; }
+  .label { position: absolute; font: 500 18px/1 'JetBrains Mono', monospace; text-transform: uppercase;
+    letter-spacing: 0.12em; color: rgba(247, 244, 238, 0.6); }
+  #label-brand { left: 64px; top: 64px; }
+  #label-chapter { right: 64px; top: 64px; }
+  #label-note { left: 64px; bottom: 120px; }
+  #label-timecode { right: 64px; bottom: 120px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="ground"></div>
+<canvas id="trail-and-floor" width="1920" height="1080"></canvas>
+<div id="ball"></div>
+<div id="label-brand" class="label">ÉMILE</div>
+<div id="label-chapter" class="label">—</div>
+<div id="label-note" class="label">FOR MAC</div>
+<div id="label-timecode" class="label">00:00:00:00</div>
+
+<script type="module">
+  const LINE_Y = 790, R = 45, BASE = LINE_Y - R;
+  const X0 = 260, X1 = 1660;
+  let B, hits, g, ball, tc;
+
+  // Ball centre at time t: a fall, two shrinking arcs, then a roll to the centre.
+  function pos(t) {
+    const [b1, b2, b3, b35] = [B(1), B(2), B(3), B(3.5)];
+    if (t <= b1) { const s = t / b1; return { x: 320 + (560 - 320) * s, y: 20 + (BASE - 20) * s * s }; }
+    if (t <= b2) { const s = (t - b1) / (b2 - b1); return { x: 560 + 240 * s, y: BASE - 4 * 360 * s * (1 - s) }; }
+    if (t <= b3) { const s = (t - b2) / (b3 - b2); return { x: 800 + 110 * s, y: BASE - 4 * 150 * s * (1 - s) }; }
+    const s = Math.min(1, (t - b3) / (b35 - b3)), e = 1 - Math.pow(1 - s, 3);
+    return { x: 910 + 50 * e, y: BASE };
+  }
+
+  export function setup(ctx) {
+    B = (n) => (ctx.beat ? ctx.beat(n) : n * 0.4);
+    hits = [{ t: B(1), x: 560, a: 1 }, { t: B(2), x: 800, a: 0.65 }, { t: B(3), x: 910, a: 0.4 }];
+    g = ctx.root.querySelector('#trail-and-floor').getContext('2d');
+    ball = ctx.root.querySelector('#ball');
+    tc = ctx.root.querySelector('#label-timecode');
+  }
+
+  export function draw(t, ctx) {
+    g.clearRect(0, 0, 1920, 1080);
+
+    // Floor: a gentle standing wave plus a damped dip under each hit.
+    g.strokeStyle = '#f7f4ee'; g.lineWidth = 2; g.lineCap = 'round'; g.lineJoin = 'round';
+    g.beginPath();
+    for (let x = X0; x <= X1; x += 8) {
+      let y = LINE_Y + 2.5 * Math.sin(x / 70);
+      for (const h of hits) {
+        const dt = t - h.t;
+        if (dt < -0.03 || dt > 0.6) continue;
+        const amp = dt < 0 ? 14 * h.a * (1 + dt / 0.03) : 14 * h.a * Math.exp(-dt / 0.14) * Math.cos(2 * Math.PI * dt / 0.26);
+        const u = (x - h.x) / 95;
+        y += amp * Math.exp(-u * u) * Math.cos(u * 1.6);
+      }
+      x === X0 ? g.moveTo(x, y) : g.lineTo(x, y);
+    }
+    g.stroke();
+
+    // Dotted trail: one dot per 1/60 s of flight, fading with age; the roll leaves none.
+    g.fillStyle = '#f7f4ee';
+    for (let k = 1; k / 60 <= Math.min(t, B(3)); k++) {
+      const tt = k / 60, age = t - tt, a = 0.75 * (1 - age / 0.75);
+      if (a <= 0) continue;
+      const p = pos(tt);
+      g.globalAlpha = a; g.beginPath(); g.arc(p.x, p.y, 2.6, 0, Math.PI * 2); g.fill();
+    }
+
+    // Splash strokes fanning up from each hit.
+    for (const h of hits) {
+      const dt = t - h.t;
+      if (dt < 0 || dt > 0.16) continue;
+      g.globalAlpha = dt < 0.1 ? 0.9 : 0.9 * (1 - (dt - 0.1) / 0.06);
+      const r0 = 58 + 260 * dt * h.a, len = 22 * h.a + 6;
+      g.beginPath();
+      for (let j = 0; j < 7; j++) {
+        const ang = Math.PI * (0.08 + 0.84 * j / 6), cx = Math.cos(ang), cy = -Math.sin(ang);
+        g.moveTo(h.x + cx * r0, LINE_Y - 12 + cy * r0 * 0.7);
+        g.lineTo(h.x + cx * (r0 + len), LINE_Y - 12 + cy * (r0 + len) * 0.7);
+      }
+      g.stroke();
+    }
+    g.globalAlpha = 1;
+
+    // Ball: squash on contact, stretch on rebound, stretch along the fall; origin at the bottom keeps it on the line.
+    const p = pos(t);
+    let sx = 1, sy = 1;
+    for (const h of hits) {
+      const dt = t - h.t;
+      if (dt >= -0.04 && dt < 0.05) { const k = 1 - Math.abs(dt) / 0.05; sx = 1 + 0.4 * h.a * k; sy = 1 - 0.4 * h.a * k; }
+      else if (dt >= 0.05 && dt < 0.17) { const k = Math.sin(Math.PI * (dt - 0.05) / 0.12); sx = 1 - 0.18 * h.a * k; sy = 1 + 0.25 * h.a * k; }
+    }
+    if (t < hits[0].t - 0.04) { const k = Math.min(1, t / hits[0].t); sx = 1 - 0.12 * k; sy = 1 + 0.18 * k; }
+    const y = sy < 1 ? BASE : p.y;
+    ball.style.transform = `translate(${(p.x - R).toFixed(1)}px, ${(y - R).toFixed(1)}px) scale(${sx.toFixed(3)}, ${sy.toFixed(3)})`;
+
+    const f = Math.floor(t * 30 + 1e-6), ss = Math.floor(f / 30), ff = f % 30;
+    tc.textContent = `00:00:${String(ss).padStart(2, '0')}:${String(ff).padStart(2, '0')}`;
+  }
+</script>

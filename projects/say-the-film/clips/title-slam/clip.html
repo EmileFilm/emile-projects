@@ -1,0 +1,107 @@
+<style>
+  #ground { position: absolute; inset: 0; background: #d9541e; }
+  /* The block pushes in as one; each word inside slams on its own. */
+  #title { position: absolute; left: 50%; top: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transform-origin: 50% 50%; }
+  .line { display: flex; gap: 0.22em; font: italic 850 230px/0.9 'Fraunces', serif;
+    letter-spacing: -0.03em; color: #1b1917; white-space: nowrap; }
+  .word { position: relative; display: inline-block;
+    /* Flat offset echo in mid brown, the reel's second primary. */
+    text-shadow: 8px 8px 0 #8a5a3c; }
+  .label { position: absolute; font: 500 18px/1 'JetBrains Mono', monospace; text-transform: uppercase;
+    letter-spacing: 0.12em; color: rgba(247, 244, 238, 0.6); }
+  #label-brand { left: 64px; top: 64px; }
+  #label-chapter { right: 64px; top: 64px; }
+  #label-note { left: 64px; bottom: 120px; }
+  #label-timecode { right: 64px; bottom: 120px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="ground"></div>
+<div id="title">
+  <div id="title-line-1" class="line"><span id="word-say" class="word">SAY</span><span id="word-it-1" class="word">IT.</span></div>
+  <div id="title-line-2" class="line"><span id="word-it-2" class="word">IT</span><span id="word-moves" class="word">MOVES.</span></div>
+</div>
+<div id="label-brand" class="label">ÉMILE</div>
+<div id="label-chapter" class="label">—</div>
+<div id="label-note" class="label">FOR MAC</div>
+<div id="label-timecode" class="label">00:00:00:00</div>
+
+<script type="module">
+  const TRAVEL = 0.07;   // seconds of accelerating flight before a word lands
+  const SETTLE = 0.2;    // overshoot after the hit, resting exactly on the half beat
+  let B, title, tc, words, startFrame;
+
+  // Offset (px along the move) at time t for a word landing at L: ease-in flight, then zero.
+  function offset(t, L, dist) {
+    const s = (t - (L - TRAVEL)) / TRAVEL;
+    if (s <= 0) return dist;
+    if (s >= 1) return 0;
+    return dist * (1 - s * s * s);
+  }
+
+  export function setup(ctx) {
+    B = (n) => (ctx.beat ? ctx.beat(n) : n * 0.4);
+    // The clip sits at frame 48 of the film; the timecode shows film time.
+    startFrame = ctx.vars.startFrame ?? 48;
+    title = ctx.root.querySelector('#title');
+    tc = ctx.root.querySelector('#label-timecode');
+    // One word per beat, alternating sides so the eye zig-zags with the music.
+    const spec = [
+      // MOVES., the widest word, rises from below so its flight stays inside the frame.
+      ['#word-say', 0, -1, 'x'], ['#word-it-1', 1, 1, 'x'], ['#word-it-2', 2, -1, 'x'], ['#word-moves', 3, 1, 'y'],
+    ];
+    words = spec.map(([sel, beat, dir, axis]) => {
+      const el = ctx.root.querySelector(sel);
+      // The ghost trail is drawn as extra text-shadows on the word itself, so it can never drift off the glyphs.
+      const ghosts = [0.4, 0.2, 0.1].map((a, k) => ({ a, lag: 0.018 * (k + 1) }));
+      // A short throw plus a scale-down from the camera keeps the flight inside the frame.
+      return { el, L: B(beat), dir, axis, dist: (axis === 'y' ? 200 : 240) * dir, ghosts };
+    });
+  }
+
+  export function draw(t, ctx) {
+    // Push-in 8% across the clip, easing out so it never stalls before the cut.
+    const k = Math.min(1, t / ctx.d), push = 1 + 0.08 * (1 - Math.pow(1 - k, 2));
+    title.style.transform = `translate(-50%, -50%) scale(${push.toFixed(4)})`;
+
+    for (const w of words) {
+      const { el, L, dist, ghosts } = w;
+      // The first word lands on frame 0, already there as the cut hits.
+      if (L > 0 && t < L - TRAVEL) { el.style.visibility = 'hidden'; continue; }
+      el.style.visibility = 'visible';
+      const vert = w.axis === 'y';
+      const x = offset(t, L, dist);
+      // a = scale along the move, b = across it.
+      let a = 1, b = 1;
+      if (t < L) {                                              // falling from the camera, stretched along the move
+        const z = 1 + (vert ? 0.15 : 0.3) * Math.abs(x / dist);
+        a = 1.3 * z; b = 0.92 * z;
+      }
+      else if (t < L + SETTLE) {                                // squash on the hit, overshoot, settle
+        const u = (t - L) / SETTLE;
+        const wob = Math.exp(-4 * u) * Math.cos(2.6 * Math.PI * u);
+        a = 1 - 0.14 * wob; b = 1 + 0.1 * wob;
+      }
+      const sx = vert ? b : a, sy = vert ? a : b;
+      const nudge = t >= L && t < L + SETTLE ? -w.dir * 18 * Math.exp(-6 * (t - L) / SETTLE) * Math.sin(Math.PI * (t - L) / SETTLE) : 0;
+      const tr = vert ? `translateY(${(x + nudge).toFixed(1)}px)` : `translateX(${(x + nudge).toFixed(1)}px)`;
+      el.style.transform = `${tr} scale(${sx.toFixed(3)}, ${sy.toFixed(3)})`;
+      el.style.transformOrigin = vert ? '50% 100%' : '50% 80%';
+
+      // Ghost trail: earlier positions at 40/20/10%, only while it flies, behind the brown echo.
+      const shadows = ['8px 8px 0 #8a5a3c'];
+      if (L > 0 && t >= L - TRAVEL && t < L) {
+        for (const g of ghosts) {
+          const d = (offset(t - g.lag, L, dist) - x) / (vert ? sy : sx);
+          const gx = vert ? 0 : d, gy = vert ? d : 0;
+          shadows.push(`${gx.toFixed(1)}px ${gy.toFixed(1)}px 0 rgba(27, 25, 23, ${g.a})`);
+        }
+      }
+      el.style.textShadow = shadows.join(', ');
+    }
+
+    const f = startFrame + Math.floor(t * 30 + 1e-6), ss = Math.floor(f / 30), ff = f % 30;
+    tc.textContent = `00:00:${String(ss).padStart(2, '0')}:${String(ff).padStart(2, '0')}`;
+  }
+</script>

@@ -630,6 +630,124 @@
           "bytes": 972
         }
       ]
+    },
+    {
+      "id": "say-the-film",
+      "title": "Say the film",
+      "line": "A ball, a slam and a run of short chapters cut on the beat, landing on the name: for a product's launch reel.",
+      "genre": "Motion design",
+      "kind": "Motion reel",
+      "seconds": 15.2,
+      "aspect": "16:9",
+      "preview": {
+        "path": "projects/say-the-film/preview.mp4",
+        "bytes": 1775859,
+        "sha256": "aa7542742f5d5aa4e1457f4aa95b7402dbd6881e6947b0f88490d36b29b8e139"
+      },
+      "poster": {
+        "path": "projects/say-the-film/preview.jpg",
+        "bytes": 11356,
+        "sha256": "78971297f58295dd4390cd23a16e8788b93d2decd940645ef89aaf0d6935a17c"
+      },
+      "beats": {
+        "in": 0.1,
+        "hit": 0.2,
+        "hold": 0.84
+      },
+      "zh": {
+        "title": "说出这支片子",
+        "kind": "动效合集",
+        "line": "一个小球、一记重砸，几个短章节卡着拍子切过去，最后落在名字上：适合产品的发布短片。"
+      },
+      "prompts": {
+        "en": {
+          "path": "prompts/say-the-film.en.md",
+          "bytes": 3722,
+          "sha256": "45035b29d671d56243bc7f4fce9d85129f53c00f4b2c4a0a4d0b51b652a0c72e"
+        },
+        "zh": {
+          "path": "prompts/say-the-film.zh.md",
+          "bytes": 3941,
+          "sha256": "17ca66000455825a3d660bad232002cf45cff743f8c6e6cd9311eff84029a0e9"
+        }
+      },
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "0f328cfaeafb37ef92279aeb42897bb572dda5df0731313fcc76ff0cf509b3c7",
+          "bytes": 2926
+        },
+        {
+          "path": "README.md",
+          "sha256": "3eb239a3157872a8fd772ecd1fbb74859b53a34d2bdddcce38948a976d6357bb",
+          "bytes": 1567
+        },
+        {
+          "path": "assets/brand/Émile/logo-dark.png",
+          "sha256": "e5f7437b27c0c5deb78c975f9aded91a4eb8a2dfc0ea27ffa9428b56c416b2d9",
+          "bytes": 6367
+        },
+        {
+          "path": "assets/music/upbeat-modern-electronic-bright--14515641.json",
+          "sha256": "908b5543225ff2a774bc6c1569e492f943c6dbe2ca773115b8c4e6be0d2c4af5",
+          "bytes": 718
+        },
+        {
+          "path": "assets/music/upbeat-modern-electronic-bright--14515641.m4a",
+          "sha256": "a5fbe03430f6448ffeb0c468b73332055a13a0968869316607098d650a4dd4e7",
+          "bytes": 392397
+        },
+        {
+          "path": "assets/sfx/boom-01.m4a",
+          "sha256": "a5716b5db89d9eefa8d867f56accf1d740ca844b38dfe3fc4cb047befc10971d",
+          "bytes": 92091
+        },
+        {
+          "path": "clips/bounce/clip.html",
+          "sha256": "8eba2c3d82a5d362aeffbfc9e9f0d8a3d4a388ca06a10c58a5e93fa5eb14a808",
+          "bytes": 4984
+        },
+        {
+          "path": "clips/cards-count/clip.html",
+          "sha256": "9bdb37adac9e82c45bc5ea879770ca8e67cc65b9cd04aa572e9b461e7f7d28fc",
+          "bytes": 6727
+        },
+        {
+          "path": "clips/chat-to-shapes/clip.html",
+          "sha256": "80e09fd9b8fb204014fb5e9f1c903d5b5ac1b937ceb2abba2b8e5504f9ad7101",
+          "bytes": 10431
+        },
+        {
+          "path": "clips/circle-cut/clip.html",
+          "sha256": "70ca6192f3aae595da5a04dd8e0bafcbf7a0c8e39b99427301fe729cac35da23",
+          "bytes": 7640
+        },
+        {
+          "path": "clips/icon-burst/clip.html",
+          "sha256": "cdf2f33d6b398fdd83b80d96f4706eb651a74708c74fd3b27d870d90253b223d",
+          "bytes": 14512
+        },
+        {
+          "path": "clips/looks-swap/clip.html",
+          "sha256": "31a2983bb3d8ee89510c5e4abddac58bdb166197473a91181054ac3cb856938d",
+          "bytes": 9635
+        },
+        {
+          "path": "clips/title-slam/clip.html",
+          "sha256": "6e0bda1da9d65e293eac2f94dab24a2f95d5dc0995b3e83d5488c119189f6b23",
+          "bytes": 5464
+        },
+        {
+          "path": "clips/tracks-drop/clip.html",
+          "sha256": "fc30c7c05cc45d70d379e7598b8933b85893aac3656bf1795aaa7b81d543ed00",
+          "bytes": 10162
+        },
+        {
+          "path": "emile.json",
+          "sha256": "5bae65267890d4fff44aa0b4c0b4e9b881fb4a4fc65d8e57d885e45e660a8352",
+          "bytes": 11571
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,174 @@
+<style>
+  #ground { position: absolute; inset: 0; background: #f7f4ee; }
+  #chapter-number { position: absolute; left: 120px; top: 136px; font: italic 850 96px/0.9 'Fraunces', serif;
+    letter-spacing: -0.03em; color: #d9541e; }
+  #chapter-line { position: absolute; left: 124px; top: 240px; font: 500 34px/1 -apple-system, 'Inter', sans-serif;
+    color: #1b1917; }
+  /* Pill, morphing shape, its echoes and guide boxes are one drawing, rewritten per frame. */
+  #shapes { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+  #chat-text { position: absolute; left: 566px; top: 536px; font: 500 40px/48px -apple-system, 'Inter', sans-serif;
+    color: #f7f4ee; white-space: pre; display: flex; align-items: center; }
+  #chat-caret { display: inline-block; width: 4px; height: 44px; margin-left: 4px; background: #d9541e; border-radius: 2px; }
+  #chat-send { position: absolute; left: 1310px; top: 520px; width: 80px; height: 80px; border-radius: 50%;
+    background: #d9541e; color: #f7f4ee; font: 700 40px/80px -apple-system, 'Inter', sans-serif; text-align: center; }
+  #shape-name { position: absolute; left: 0; top: 0; font: 500 18px/1 'JetBrains Mono', monospace; text-transform: uppercase;
+    letter-spacing: 0.12em; color: rgba(27, 25, 23, 0.6); white-space: pre; }
+  #clip-label { position: absolute; left: 960px; top: 560px; transform: translate(-50%, -50%);
+    font: 600 32px/1 -apple-system, 'Inter', sans-serif; color: #f7f4ee; white-space: pre; opacity: 0; }
+  .label { position: absolute; font: 500 18px/1 'JetBrains Mono', monospace; text-transform: uppercase;
+    letter-spacing: 0.12em; color: rgba(27, 25, 23, 0.6); }
+  #label-brand { left: 64px; top: 64px; }
+  #label-chapter { right: 64px; top: 64px; }
+  #label-note { left: 64px; bottom: 120px; }
+  #label-timecode { right: 64px; bottom: 120px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="ground"></div>
+<div id="chapter-number">01</div>
+<div id="chapter-line">Say the film you want</div>
+<svg id="shapes" viewBox="0 0 1920 1080">
+  <rect id="guide-box-outer" fill="none" stroke="#1b1917" stroke-width="1.5" stroke-dasharray="6 8" opacity="0"></rect>
+  <path id="shape-echo-far" fill="#2d2823"></path>
+  <path id="shape-echo-near" fill="#8a5a3c"></path>
+  <path id="shape-main" fill="#1b1917"></path>
+  <rect id="guide-box" fill="none" stroke="#1b1917" stroke-width="2" opacity="0"></rect>
+  <g id="guide-handles" opacity="0">
+    <rect id="guide-handle-tl" width="12" height="12" fill="#f7f4ee" stroke="#1b1917" stroke-width="2"></rect>
+    <rect id="guide-handle-tr" width="12" height="12" fill="#f7f4ee" stroke="#1b1917" stroke-width="2"></rect>
+    <rect id="guide-handle-bl" width="12" height="12" fill="#f7f4ee" stroke="#1b1917" stroke-width="2"></rect>
+    <rect id="guide-handle-br" width="12" height="12" fill="#f7f4ee" stroke="#1b1917" stroke-width="2"></rect>
+  </g>
+</svg>
+<div id="chat-text"><span id="chat-typed"></span><span id="chat-caret"></span></div>
+<div id="chat-send">↑</div>
+<div id="shape-name"></div>
+<div id="clip-label">launch film</div>
+<div id="label-brand" class="label">ÉMILE</div>
+<div id="label-chapter" class="label">01 · SAY IT</div>
+<div id="label-note" class="label">ILLUSTRATIVE</div>
+<div id="label-timecode" class="label">00:00:03:06</div>
+
+<script type="module">
+  const CX = 960, CY = 560, N = 120, FILM_START_FRAME = 96;
+  const LINE = 'make me a launch film';
+  let B, el = {}, keys;
+
+  // Rounded rectangle outline, clockwise from top-centre so every shape's point 0 sits at the top.
+  function roundRect(w, h, r) {
+    const pts = [], hw = w / 2, hh = h / 2;
+    const arc = (cx, cy, a0) => { for (let i = 0; i <= 12; i++) { const a = (a0 + 90 * i / 12) * Math.PI / 180; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); } };
+    pts.push([0, -hh]);
+    arc(hw - r, -hh + r, -90);
+    arc(hw - r, hh - r, 0);
+    arc(-hw + r, hh - r, 90);
+    arc(-hw + r, -hh + r, 180);
+    pts.push([0, -hh]);
+    return pts;
+  }
+  function star(ro, ri) {
+    const pts = [];
+    for (let k = 0; k <= 10; k++) { const a = (-90 + 36 * k) * Math.PI / 180, r = k % 2 ? ri : ro; pts.push([r * Math.cos(a), r * Math.sin(a) + 12]); }
+    return pts;
+  }
+  // Same count of points spaced evenly by arc length, so any two shapes morph point to point.
+  function resample(poly) {
+    const seg = [], out = []; let total = 0;
+    for (let i = 1; i < poly.length; i++) { const l = Math.hypot(poly[i][0] - poly[i - 1][0], poly[i][1] - poly[i - 1][1]); seg.push(l); total += l; }
+    let i = 0, acc = 0;
+    for (let k = 0; k < N; k++) {
+      const d = total * k / N;
+      while (i < seg.length - 1 && acc + seg[i] < d) { acc += seg[i]; i++; }
+      const u = seg[i] ? (d - acc) / seg[i] : 0;
+      out.push([poly[i][0] + (poly[i + 1][0] - poly[i][0]) * u, poly[i][1] + (poly[i + 1][1] - poly[i][1]) * u]);
+    }
+    return out;
+  }
+  const backOut = (x) => { const c = 1.9; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+
+  // Shape and its blend weight toward the next key at time t; each morph starts 0.1 s before its beat and overshoots onto it.
+  function shapeAt(t) {
+    let prev = keys[0], next = keys[0], s = 1;
+    for (let k = 1; k < keys.length; k++) {
+      const st = keys[k].t - 0.08;
+      if (t >= st) { prev = keys[k - 1]; next = keys[k]; s = Math.min(1, (t - st) / 0.13); }
+    }
+    const e = s >= 1 ? 1 : backOut(s);
+    return prev.pts.map((p, i) => [p[0] + (next.pts[i][0] - p[0]) * e, p[1] + (next.pts[i][1] - p[1]) * e]);
+  }
+  const toPath = (pts, dx, dy) => 'M' + pts.map((p) => `${(CX + p[0] + dx).toFixed(1)} ${(CY + p[1] + dy).toFixed(1)}`).join('L') + 'Z';
+
+  export function setup(ctx) {
+    B = (n) => (ctx.beat ? ctx.beat(n) : n * 0.4);
+    const $ = (id) => ctx.root.querySelector('#' + id);
+    for (const id of ['shape-main', 'shape-echo-near', 'shape-echo-far', 'guide-box', 'guide-box-outer', 'guide-handles',
+      'guide-handle-tl', 'guide-handle-tr', 'guide-handle-bl', 'guide-handle-br', 'chat-text', 'chat-typed', 'chat-caret',
+      'chat-send', 'shape-name', 'clip-label', 'label-timecode']) el[id] = $(id);
+    // Pill collapses on beat 1; then a new shape on each half-beat; the clip block lands on beat 2.5 and holds.
+    keys = [
+      { t: 0, pts: resample(roundRect(900, 120, 60)), name: '' },
+      { t: B(1), pts: resample(roundRect(300, 300, 150)), name: 'CIRCLE' },
+      { t: B(1.5), pts: resample(roundRect(290, 290, 52)), name: 'SQUARE' },
+      { t: B(2), pts: resample(star(185, 80)), name: 'STAR' },
+      { t: B(2.5), pts: resample(roundRect(460, 150, 12)), name: 'CLIP · 00:04' },
+    ];
+  }
+
+  export function draw(t, ctx) {
+    const collapse = B(1) - 0.1;
+    const chatting = t < collapse;
+
+    // Typing: the first word is there on the first frame, the line completes on the half-beat.
+    const typeEnd = B(0.5);
+    const n = Math.min(LINE.length, 4 + Math.floor((LINE.length - 4) * Math.min(1, t / typeEnd)));
+    el['chat-typed'].textContent = LINE.slice(0, n);
+
+    const main = shapeAt(t);
+    // The words and send disc are squeezed with the pill as it collapses, and gone on the beat.
+    const pb = (() => { let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9; for (const [x, y] of main) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); } return { w: x1 - x0, h: y1 - y0 }; })();
+    const inPill = t < B(1);
+    const sq = `scale(${Math.max(0.01, pb.w / 900).toFixed(3)}, ${Math.max(0.01, pb.h / 120).toFixed(3)})`;
+    el['chat-text'].style.transformOrigin = `${CX - 566}px 24px`;
+    el['chat-text'].style.transform = sq;
+    el['chat-text'].style.display = inPill ? 'flex' : 'none';
+    el['chat-send'].style.display = inPill ? 'block' : 'none';
+    el['chat-send'].style.transformOrigin = `${CX - 1310}px 40px`;
+    el['chat-send'].style.transform = sq;
+    el['chat-send'].style.opacity = inPill ? 1 : 0;
+
+    const spread = Math.min(1, Math.max(0, (t - collapse) / 0.18));
+    el['shape-main'].setAttribute('d', toPath(main, 0, 0));
+    el['shape-main'].setAttribute('fill', chatting ? '#1b1917' : '#d9541e');
+    // Echoes trail the morph slightly in time and spread out to flat offsets once the pill is gone.
+    el['shape-echo-near'].setAttribute('d', toPath(main, 16 * spread, 16 * spread));
+    el['shape-echo-far'].setAttribute('d', toPath(main, 32 * spread, 32 * spread));
+    el['shape-echo-near'].setAttribute('opacity', chatting ? 0 : 1);
+    el['shape-echo-far'].setAttribute('opacity', chatting ? 0 : 1);
+
+    // Guide boxes snap to the bounds of the shape that has landed, on its beat; they never ride the overshoot.
+    const bounds = (pts) => { let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const [x, y] of pts) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); } return { x0: CX + x0, y0: CY + y0, x1: CX + x1, y1: CY + y1 }; };
+    const showGuides = t >= B(1);
+    let landed = keys[1];
+    for (const k of keys) if (t >= k.t && k.name) landed = k;
+    const bb = bounds(landed.pts), pad = 22;
+    const setRect = (r, b, p) => { r.setAttribute('x', b.x0 - p); r.setAttribute('y', b.y0 - p); r.setAttribute('width', b.x1 - b.x0 + 2 * p); r.setAttribute('height', b.y1 - b.y0 + 2 * p); };
+    setRect(el['guide-box'], bb, pad);
+    setRect(el['guide-box-outer'], bb, pad + 34);
+    el['guide-box'].setAttribute('opacity', showGuides ? 1 : 0);
+    el['guide-box-outer'].setAttribute('opacity', showGuides ? 0.7 : 0);
+    el['guide-handles'].setAttribute('opacity', showGuides ? 1 : 0);
+    const hx = [bb.x0 - pad - 6, bb.x1 + pad - 6], hy = [bb.y0 - pad - 6, bb.y1 + pad - 6];
+    [['guide-handle-tl', 0, 0], ['guide-handle-tr', 1, 0], ['guide-handle-bl', 0, 1], ['guide-handle-br', 1, 1]].forEach(([id, i, j]) => {
+      el[id].setAttribute('x', hx[i]); el[id].setAttribute('y', hy[j]);
+    });
+
+    // The shape's name changes on its beat, set above the guide box.
+    el['shape-name'].textContent = landed.name;
+    el['shape-name'].style.opacity = showGuides ? 1 : 0;
+    el['shape-name'].style.transform = `translate(${(bb.x0 - pad).toFixed(1)}px, ${(bb.y0 - pad - 34).toFixed(1)}px)`;
+
+    el['clip-label'].style.opacity = t >= B(2.5) ? 1 : 0;
+
+    const f = FILM_START_FRAME + Math.floor(t * 30 + 1e-6), ss = Math.floor(f / 30), ff = f % 30;
+    el['label-timecode'].textContent = `00:00:${String(ss).padStart(2, '0')}:${String(ff).padStart(2, '0')}`;
+  }
+</script>

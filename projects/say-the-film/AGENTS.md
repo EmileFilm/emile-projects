@@ -1,0 +1,14 @@
+# Say the film
+
+## Visual conventions
+
+- Frame 1920×1080, 30 fps. Music at 150 bpm: one beat = 0.4 s; every entrance, morph and hit lands on a beat (or a half-beat in the icon burst).
+- Colours: Film black #100f0e and Dark panel #1b1917 (dark grounds); the brand glow ground radial-gradient(90% 70% at 50% 46%, #2d2823, #181513 48%, #100f0e) on every dark scene; Cream #f7f4ee (text on dark, and the light ground); Ember orange #d9541e, the single accent (the ball, the disc, the chapter numbers, the marker circle, the active pill, and the full orange ground of the title and some icon shots); Glow brown #2d2823 and a mid brown #8a5a3c as the second and third 'primaries' (offset echoes, track fills, shadows). No red, blue, yellow or pink anywhere.
+- Type: headlines Fraunces (Google Fonts) weight 850, italic, letter-spacing -0.03em, line-height 0.9; the title slam at 220–240 px; the 'Émile' wordmark at 300 px on the landing, 150 px on the end card; chapter numbers Fraunces 850 italic 96 px in #d9541e (cream on the orange ground). Body and UI words in system sans (-apple-system, 'Inter' fallback) 28–40 px. Frame labels JetBrains Mono (Google Fonts) 18 px, uppercase, letter-spacing 0.12em.
+- Frame labels (the reel's recurring frame, drawn in every clip the same, 64 px from the edges): top-left 'ÉMILE'; top-right the chapter as 'NN · NAME' in the six chapters, else '—'; bottom-left 'ILLUSTRATIVE' in the chapters (the interface is drawn as motion graphics), else 'FOR MAC'; bottom-right a running timecode of film time 00:00:SS:FF. Cream at 60% on dark and orange grounds, #1b1917 at 60% on cream.
+- Stage: the chapter number and its sans one-liner sit top-left in the band 0.13–0.27 of the height, 120 px from the left; the hero object centred in 0.28–0.78; the bottom free but for the labels. Margins 64 px.
+- Shapes: flat, hard-edged fills, no gradients on objects. Cards radius 14 px, small chips 12 px, pills radius 99 px. Card outline the brand's 2 px #3b352f ring on dark; on cream a 2 px #1b1917 ring. Shadows are flat offsets (8 px down-right, #2d2823 or #8a5a3c), never blurred.
+- Timeline object (recurring motif): three stacked tracks 1200 px wide, 72 px tall, 14 px gap, track ground #1b1917 with #3b352f ring; clips are rounded 12 px blocks in #d9541e, #f7f4ee and #8a5a3c; the playhead a 4 px cream line with a 22 px orange disc on top.
+- The orange disc (second motif): a flat #d9541e circle, the same one as the opening ball and the closing accent of É.
+- Motion: snap in with overshoot (cubic-bezier(.2,1.4,.3,1), 0.16–0.24 s), settle, hold; fast moves get a directional stretch (motion blur faked by scaling 1.3× along the move and a 3-step ghost trail at 40/20/10%). Morphs between shapes on the beat. Nothing fades slowly; things arrive and leave on hits.
+- Logo: assets/brand/Émile/logo-dark.png used as given (never redrawn or recoloured), 180 px square on the end card.

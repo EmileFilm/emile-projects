@@ -1,0 +1,194 @@
+<style>
+  #ground-orange { position: absolute; inset: 0; background: #d9541e; }
+  #ground-dark { position: absolute; inset: 0; background: radial-gradient(90% 70% at 50% 46%, #2d2823, #181513 48%, #100f0e); opacity: 0; }
+  #dot-ring { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; opacity: 0; }
+  #chapter-num { position: absolute; left: 120px; top: 140px; font: italic 850 96px/0.9 'Fraunces', serif;
+    letter-spacing: -0.03em; color: #f7f4ee; }
+  #chapter-line { position: absolute; left: 120px; top: 238px; font: 500 36px/1 -apple-system, 'Inter', sans-serif; color: #f7f4ee; }
+
+  /* The three tracks and the two clips that stay on them move as one (the tilt). */
+  #timeline { position: absolute; left: 360px; top: 418px; width: 1200px; height: 244px; transform-origin: 50% 50%; }
+  .track { position: absolute; left: 0; width: 1200px; height: 72px; box-sizing: border-box; border-radius: 14px;
+    background: #1b1917; border: 2px solid #3b352f; box-shadow: 8px 8px 0 #8a5a3c; }
+  .track-label { position: absolute; left: -64px; font: 500 18px/72px 'JetBrains Mono', monospace; letter-spacing: 0.12em;
+    color: rgba(247, 244, 238, 0.6); }
+  .clip { position: absolute; height: 56px; border-radius: 12px; transform-origin: 50% 100%; }
+  #clip-cream { left: 400px; width: 380px; background: #f7f4ee; top: 94px; }
+  #clip-brown { left: 200px; width: 320px; background: #8a5a3c; top: 8px; }
+
+  #playhead-line { position: absolute; left: 0; top: 300px; width: 4px; height: 564px; background: #f7f4ee;
+    transform-origin: 50% 0; opacity: 0; }
+  .orange { position: absolute; left: 0; top: 0; background: #d9541e; transform-origin: 50% 50%; }
+
+  .label { position: absolute; font: 500 18px/1 'JetBrains Mono', monospace; text-transform: uppercase;
+    letter-spacing: 0.12em; color: rgba(247, 244, 238, 0.6); }
+  #label-brand { left: 64px; top: 64px; }
+  #label-chapter { right: 64px; top: 64px; }
+  #label-note { left: 64px; bottom: 120px; }
+  #label-timecode { right: 64px; bottom: 120px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="ground-orange"></div>
+<div id="ground-dark"></div>
+<canvas id="dot-ring" width="1920" height="1080"></canvas>
+<div id="chapter-num">02</div>
+<div id="chapter-line">On a real timeline</div>
+<div id="timeline">
+  <div id="track-3" class="track" style="top:0"></div>
+  <div id="track-2" class="track" style="top:86px"></div>
+  <div id="track-1" class="track" style="top:172px"></div>
+  <div id="track-label-3" class="track-label" style="top:0">V3</div>
+  <div id="track-label-2" class="track-label" style="top:86px">V2</div>
+  <div id="track-label-1" class="track-label" style="top:172px">V1</div>
+  <div id="clip-cream" class="clip"></div>
+  <div id="clip-brown" class="clip"></div>
+</div>
+<div id="playhead-line"></div>
+<div id="orange-ghost-3" class="orange"></div>
+<div id="orange-ghost-2" class="orange"></div>
+<div id="orange-ghost-1" class="orange"></div>
+<div id="orange-clip" class="orange"></div>
+<div id="label-brand" class="label">ÉMILE</div>
+<div id="label-chapter" class="label">02 · TIMELINE</div>
+<div id="label-note" class="label">ILLUSTRATIVE</div>
+<div id="label-timecode" class="label">00:00:04:12</div>
+
+<script type="module">
+  const FILM_START_FRAME = 132;           // this clip's first frame in the film, for the running timecode
+  const TRACK1_BOTTOM = 418 + 172 + 64;   // bottom edge of a clip resting on V1
+  const PX0 = 260, PX1 = 1660, DISC_Y = 300;
+  // Five rings, ~640 px across at the outer dots' edge; dot radius 4–6 (8–12 px dots).
+  const RINGS = [{ r: 150, n: 44, s: 4 }, { r: 190, n: 54, s: 4.5 }, { r: 230, n: 64, s: 5 },
+    { r: 270, n: 74, s: 5.5 }, { r: 314, n: 84, s: 6 }];
+  const CX = 960, CY = 572;
+  let B, el = {}, g;
+
+  const clamp = (x) => Math.max(0, Math.min(1, x));
+  const lerp = (a, b, s) => a + (b - a) * s;
+  const backOut = (s) => { const c = 1.9; return 1 + (c + 1) * Math.pow(s - 1, 3) + c * Math.pow(s - 1, 2); };
+  const inOut = (s) => (s < 0.5 ? 4 * s * s * s : 1 - Math.pow(-2 * s + 2, 3) / 2);
+
+  // Playhead x: waits at the left, sweeps across beats 4–6, stops dead on beat 6.
+  function px(t) {
+    if (t < B(4)) return PX0;
+    if (t < B(6)) return lerp(PX0, PX1, inOut((t - B(4)) / (B(6) - B(4))));
+    return PX1;
+  }
+
+  // The orange clip as one shape through the whole clip: centre, size, radius, scale, rotation.
+  function shape(t) {
+    if (t < B(1)) {
+      const s = t / B(1), h = 56, sx = 1 - 0.08 * s, sy = 1 + 0.3 * s;
+      const bottom = lerp(120, TRACK1_BOTTOM, s * s);
+      return { cx: 640, cy: bottom - h * sy / 2, w: 440, h, r: 12, sx, sy, rot: 0, fast: s > 0.5 };
+    }
+    if (t < B(2.5)) {
+      const dt = t - B(1);
+      let sy = 1 - 0.35 * Math.exp(-dt / 0.05) * Math.cos(2 * Math.PI * dt / 0.16);
+      // Gathers itself before the spring.
+      const pre = clamp((t - (B(2.5) - 0.1)) / 0.1);
+      sy -= 0.18 * pre;
+      const sx = 1 + (1 - sy) * 0.4;
+      return { cx: 640, cy: TRACK1_BOTTOM - 56 * sy / 2, w: 440, h: 56, r: 12, sx, sy, rot: 0, fast: false };
+    }
+    if (t < B(3)) {
+      const s = (t - B(2.5)) / (B(3) - B(2.5));
+      return { cx: 640 + 1750 * s * s, cy: TRACK1_BOTTOM - 28 - 420 * Math.sin(s * Math.PI / 2), w: 440, h: 56, r: 12,
+        sx: 1.3, sy: 0.82, rot: -14 * s, fast: true };
+    }
+    if (t < B(3.5)) {
+      const s = (t - B(3)) / (B(3.5) - B(3)), e = backOut(s), m = 1 - Math.pow(1 - s, 3);
+      return { cx: lerp(-340, PX0, e), cy: lerp(430, DISC_Y, m), w: lerp(320, 22, m), h: lerp(56, 22, m), r: lerp(12, 11, m),
+        sx: lerp(1.3, 1, s), sy: lerp(0.82, 1, s), rot: lerp(8, 0, m), fast: false };
+    }
+    const dt = t - B(3.5);
+    const land = Math.exp(-dt / 0.04) * Math.cos(2 * Math.PI * dt / 0.14);
+    const x = px(t), v = Math.abs(px(t + 1 / 60) - x) * 60;
+    const stretch = Math.min(0.3, v / 9000);
+    return { cx: x, cy: DISC_Y, w: 22, h: 22, r: 11, sx: 1 + 0.3 * land + stretch, sy: 1 - 0.3 * land - stretch * 0.4,
+      rot: 0, fast: v > 1500 };
+  }
+
+  function paint(node, p, alpha) {
+    node.style.width = p.w.toFixed(1) + 'px';
+    node.style.height = p.h.toFixed(1) + 'px';
+    node.style.borderRadius = p.r.toFixed(1) + 'px';
+    node.style.opacity = alpha;
+    node.style.transform = `translate(${(p.cx - p.w / 2).toFixed(1)}px, ${(p.cy - p.h / 2).toFixed(1)}px) rotate(${p.rot.toFixed(2)}deg) scale(${p.sx.toFixed(3)}, ${p.sy.toFixed(3)})`;
+  }
+
+  export function setup(ctx) {
+    B = (n) => (ctx.beat ? ctx.beat(n) : n * 0.4);
+    for (const id of ['ground-orange', 'ground-dark', 'dot-ring', 'chapter-num', 'chapter-line', 'timeline', 'clip-cream',
+      'clip-brown', 'playhead-line', 'orange-clip', 'orange-ghost-1', 'orange-ghost-2', 'orange-ghost-3', 'label-chapter', 'label-timecode']) {
+      el[id] = ctx.root.querySelector('#' + id);
+    }
+    g = el['dot-ring'].getContext('2d');
+  }
+
+  export function draw(t, ctx) {
+    const second = t >= B(3);
+
+    // The cut inside the clip: orange timeline scene, then the dark playback scene.
+    el['ground-orange'].style.opacity = second ? 0 : 1;
+    el['ground-dark'].style.opacity = second ? 1 : 0;
+    el['timeline'].style.opacity = second ? 0 : 1;
+    el['dot-ring'].style.opacity = second ? 1 : 0;
+    el['chapter-num'].textContent = second ? '03' : '02';
+    el['chapter-num'].style.color = second ? '#d9541e' : '#f7f4ee';
+    el['chapter-line'].textContent = second ? 'Play it back' : 'On a real timeline';
+    el['label-chapter'].textContent = second ? '03 · PLAYBACK' : '02 · TIMELINE';
+
+    if (!second) {
+      // Cream and brown fall together, land on beat 2 with a small squash.
+      const s = clamp((t - B(1.5)) / (B(2) - B(1.5)));
+      const dt = t - B(2);
+      const sq = dt >= 0 ? 1 - 0.22 * Math.exp(-dt / 0.05) * Math.cos(2 * Math.PI * dt / 0.16) : 1 + 0.25 * s;
+      const sx = 1 + (1 - sq) * 0.4;
+      el['clip-cream'].style.transform = `translateY(${(-620 * (1 - s * s)).toFixed(1)}px) scale(${sx.toFixed(3)}, ${sq.toFixed(3)})`;
+      el['clip-brown'].style.transform = `translateY(${(-540 * (1 - s * s)).toFixed(1)}px) scale(${sx.toFixed(3)}, ${sq.toFixed(3)})`;
+      // The stack kicks back as the orange clip springs off.
+      const k = clamp((t - B(2.5)) / 0.16);
+      el['timeline'].style.transform = `rotate(${(-2.5 * backOut(k)).toFixed(2)}deg)`;
+    }
+
+    // Playhead line drops from the disc as it lands.
+    const lineS = clamp((t - (B(3.5) - 0.08)) / 0.08);
+    el['playhead-line'].style.opacity = second ? 1 : 0;
+    el['playhead-line'].style.transform = `translateX(${(px(t) - 2).toFixed(1)}px) scaleY(${(lineS * lineS).toFixed(3)})`;
+
+    paint(el['orange-clip'], shape(t), 1);
+    // Ghost trail only on the fast moves, never across the inner cut.
+    [0.4, 0.2, 0.1].forEach((a, i) => {
+      const tt = t - (i + 1) * 0.022, p = shape(tt);
+      const ok = shape(t).fast && p.fast && tt >= 0 && (tt >= B(3)) === second;
+      paint(el['orange-ghost-' + (i + 1)], p, ok ? a : 0);
+    });
+
+    // Halftone ring: dots near the playhead swell outward into a crest, then settle once it stops.
+    if (second) {
+      g.clearRect(0, 0, 1920, 1080);
+      g.fillStyle = '#f7f4ee';
+      const x = px(t);
+      const amp = t < B(4) ? 0 : t < B(6) ? 1 : Math.exp(-(t - B(6)) / 0.12);
+      const rot = 0.35 * (t - B(3));
+      for (const ring of RINGS) {
+        for (let j = 0; j < ring.n; j++) {
+          const a = rot + (j / ring.n) * Math.PI * 2;
+          // Tone shades the dots without letting them fall under 8 px.
+          const tone = 0.5 + 0.5 * Math.cos(a * 2 - 0.6);
+          let dx = Math.cos(a) * ring.r, dy = Math.sin(a) * ring.r;
+          const w = Math.exp(-Math.pow((CX + dx - x) / 70, 2)) * amp;
+          const push = 1 + (14 * w) / ring.r;
+          dx *= push; dy *= push;
+          g.globalAlpha = 0.7 + 0.25 * tone + 0.05 * w;
+          g.beginPath(); g.arc(CX + dx, CY + dy, ring.s * (1 + w), 0, Math.PI * 2); g.fill();
+        }
+      }
+      g.globalAlpha = 1;
+    }
+
+    const f = FILM_START_FRAME + Math.floor(t * 30 + 1e-6), ss = Math.floor(f / 30), ff = f % 30;
+    el['label-timecode'].textContent = `00:00:${String(ss).padStart(2, '0')}:${String(ff).padStart(2, '0')}`;
+  }
+</script>

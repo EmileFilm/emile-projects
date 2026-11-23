@@ -119,6 +119,18 @@
         "hit": 0.26,
         "hold": 0.9
       }
+    },
+    {
+      "id": "say-the-film",
+      "title": "Say the film",
+      "genre": "Motion design",
+      "kind": "Motion reel",
+      "line": "A ball, a slam and a run of short chapters cut on the beat, landing on the name: for a product's launch reel.",
+      "beats": {
+        "in": 0.1,
+        "hit": 0.2,
+        "hold": 0.84
+      }
     }
   ]
 }

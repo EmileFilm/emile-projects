@@ -16,12 +16,13 @@ In Émile they are on Home, under Remake. Open one as a project of your own, or 
 | Up to a hundred | A number climbs and bursts into a picture | a result, sold out |
 | Through the slits | Slits open on a picture, one after another | a trailer, a place |
 | Frame in frame | Frames fly out of a picture without end | sport, music, loops |
+| Say the film | A ball, a slam and short chapters cut on the beat, landing on the name (16:9, with music) | a launch reel, a product |
 
 ## Prompts
 
 `prompts/` holds, for each project, the prompt that makes one like it, in English (`<id>.en.md`) and Chinese (`<id>.zh.md`); [emilefilm.com/examples](https://emilefilm.com/examples/) shows them with your own words and colours filled in. At the top: what the picture shows, what to ask for next, and, in Chinese, the project's words. In the text `{word}`, `{bg}`, `{fg}`, `{ac}` … are the clip's vars (their values in `emile.json`) and `{picture}` the picture. They say what the clip's code does: change one when its code changes.
 
-Every picture is drawn in code: no photographs, no brands. The typefaces are Google Fonts, named in the clips and fetched by Émile.
+Every picture is drawn in code: no photographs, and no brand but Émile's own (its logo in Say the film). The typefaces are Google Fonts, named in the clips and fetched by Émile.
 
 ## Adding one
 

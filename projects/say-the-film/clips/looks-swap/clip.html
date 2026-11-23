@@ -1,0 +1,193 @@
+<style>
+  #ground { position: absolute; inset: 0; background: #f7f4ee; }
+  #chapter-number { position: absolute; left: 120px; top: 132px; font: italic 850 96px/0.9 'Fraunces', serif;
+    letter-spacing: -0.03em; color: #d9541e; }
+  #chapter-line { position: absolute; left: 124px; top: 236px; font: 500 36px/1.1 -apple-system, 'Inter', sans-serif;
+    color: #1b1917; }
+  #look-card { position: absolute; left: 600px; top: 316px; width: 716px; height: 401px; border: 2px solid #1b1917;
+    border-radius: 14px; overflow: hidden; background: #f7f4ee; box-shadow: 8px 8px 0 #8a5a3c; }
+  #look-canvas { position: absolute; left: 0; top: 0; width: 716px; height: 401px; }
+  .pill { position: absolute; top: 762px; width: 236px; height: 68px; border: 2px solid #1b1917; border-radius: 99px;
+    background: #f7f4ee; color: #1b1917; font: 600 32px/68px -apple-system, 'Inter', sans-serif; text-align: center; }
+  .pill.on { background: #d9541e; border-color: #d9541e; color: #f7f4ee; }
+  #pill-halftone { left: 576px; } #pill-risograph { left: 842px; } #pill-vhs { left: 1108px; }
+  #click-ticks { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+  #cursor { position: absolute; left: 0; top: 0; width: 44px; height: 56px; transform-origin: 4px 4px; }
+  .label { position: absolute; font: 500 18px/1 'JetBrains Mono', monospace; text-transform: uppercase;
+    letter-spacing: 0.12em; color: rgba(27, 25, 23, 0.6); }
+  #label-brand { left: 64px; top: 64px; }
+  #label-chapter { right: 64px; top: 64px; }
+  #label-note { left: 64px; bottom: 120px; }
+  #label-timecode { right: 64px; bottom: 120px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="ground"></div>
+<div id="chapter-number">05</div>
+<div id="chapter-line">Pick a look</div>
+<div id="look-card"><canvas id="look-canvas" width="716" height="401"></canvas></div>
+<div id="pill-halftone" class="pill">Halftone</div>
+<div id="pill-risograph" class="pill">Risograph</div>
+<div id="pill-vhs" class="pill">VHS</div>
+<canvas id="click-ticks" width="1920" height="1080"></canvas>
+<svg id="cursor" viewBox="0 0 44 56"><path d="M4 4 L4 46 L15 36 L23 53 L31 49 L23 33 L38 33 Z" fill="#1b1917" stroke="#f7f4ee" stroke-width="3" stroke-linejoin="round"/></svg>
+<div id="label-brand" class="label">ÉMILE</div>
+<div id="label-chapter" class="label">05 · LOOKS</div>
+<div id="label-note" class="label">ILLUSTRATIVE</div>
+<div id="label-timecode" class="label">00:00:08:12</div>
+
+<script type="module">
+  const W = 716, H = 401, START_FRAME = 252;
+  const SUN = { x: 470, y: 140, r: 70 };
+  const hillTop = (x) => 318 - 138 * Math.exp(-(((x - 240) / 250) ** 2)) - 40 * Math.exp(-(((x - 640) / 160) ** 2));
+  const PILLS = [696, 960, 1226].map((x) => ({ x, y: 796 }));
+
+  let B, clicks, g, tk, pills, cursor, tc, base, speck, vhsNoise;
+
+  // Ink density of the picture at a point: the halftone reads this instead of the colours.
+  function density(x, y) {
+    if (y > hillTop(x)) return 0.9;
+    const d = Math.hypot(x - SUN.x, y - SUN.y);
+    if (d < SUN.r) return 0.62;
+    return 0.06 + 0.1 * Math.max(0, 1 - d / 260);
+  }
+
+  function hillPath(c, dx, dy) {
+    c.beginPath(); c.moveTo(dx, H + dy);
+    for (let x = 0; x <= W; x += 8) c.lineTo(x + dx, hillTop(x) + dy);
+    c.lineTo(W + dx, H + dy); c.closePath();
+  }
+
+  function drawHalftone(dt) {
+    g.fillStyle = '#f7f4ee'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#d9541e';
+    const S = 17;
+    for (let row = 0; row * S < H + S; row++) {
+      for (let col = -1; col * S < W + S; col++) {
+        const x = col * S + (row % 2 ? S / 2 : 0), y = row * S;
+        // Dots swell outward from the sun in a wave right after the click, overshooting before they settle.
+        const dist = Math.hypot(x - SUN.x, y - SUN.y);
+        const k = Math.min(1, Math.max(0, (dt * 2600 - dist) / 220));
+        const grow = k <= 0 ? 0.25 : 1 + 0.35 * Math.sin(Math.PI * k) * (1 - k);
+        const r = S * 0.5 * Math.sqrt(density(x, y)) * grow;
+        if (r < 0.8) continue;
+        g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+      }
+    }
+  }
+
+  function drawRiso(dt) {
+    g.fillStyle = '#f7f4ee'; g.fillRect(0, 0, W, H);
+    // The second ink snaps out of register with an overshoot, then holds.
+    const k = Math.min(1, dt / 0.18), e = 1 + 0.5 * Math.sin(Math.PI * k) * (1 - k);
+    const ox = 11 * Math.min(1, k * 1.4) * e, oy = 7 * Math.min(1, k * 1.4) * e;
+    g.globalCompositeOperation = 'multiply';
+    g.fillStyle = '#8a5a3c';
+    hillPath(g, ox, oy); g.fill();
+    g.beginPath(); g.arc(SUN.x + ox, SUN.y + oy, SUN.r, 0, Math.PI * 2); g.lineWidth = 9; g.strokeStyle = '#8a5a3c'; g.stroke();
+    g.fillStyle = '#d9541e';
+    g.beginPath(); g.arc(SUN.x - ox * 0.5, SUN.y - oy * 0.5, SUN.r, 0, Math.PI * 2); g.fill();
+    hillPath(g, -ox * 0.5, -oy * 0.5 + 26); g.globalAlpha = 0.85; g.fill(); g.globalAlpha = 1;
+    g.globalCompositeOperation = 'source-over';
+    // Paper specks where the drum missed ink.
+    g.fillStyle = '#f7f4ee';
+    for (const s of speck) { g.globalAlpha = s.a; g.fillRect(s.x, s.y, s.w, s.w); }
+    g.globalAlpha = 1;
+  }
+
+  function drawVhs(t, dt) {
+    const f = Math.floor(t * 30);
+    const tear = (x) => 338 + 22 * Math.sin(x / 37 + f) + vhsNoise[(Math.floor(x / 12) + f * 7) % vhsNoise.length] * 26;
+    g.fillStyle = '#1b1917'; g.fillRect(0, 0, W, H);
+    g.save();
+    // Torn bottom edge: the tape picture stops on a ragged line, dark tape below it.
+    g.beginPath(); g.moveTo(0, 0); g.lineTo(W, 0);
+    for (let x = W; x >= 0; x -= 12) g.lineTo(x, tear(x));
+    g.closePath(); g.clip();
+    const snap = Math.max(0, 1 - dt / 0.15);
+    for (let y = 0; y < H; y += 4) {
+      const n = vhsNoise[(y + f * 13) % vhsNoise.length];
+      const dx = 4 * Math.sin(y / 23 + f * 0.9) + (n > 0.9 ? 22 * n : 0) + 60 * snap * Math.sin(y / 9);
+      g.drawImage(base, 0, y, W, 4, dx, y, W, 4);
+      // Colour bleeds sideways: the same strip again, shifted and faint.
+      g.globalAlpha = 0.35; g.drawImage(base, 0, y, W, 4, dx + 16, y, W, 4);
+      g.globalAlpha = 0.2; g.drawImage(base, 0, y, W, 4, dx - 10, y, W, 4);
+      g.globalAlpha = 1;
+    }
+    g.fillStyle = 'rgba(27, 25, 23, 0.1)';
+    for (let y = 0; y < H; y += 3) g.fillRect(0, y, W, 1);
+    g.restore();
+    // Tracking noise in the torn band.
+    g.fillStyle = '#f7f4ee';
+    for (let i = 0; i < 26; i++) {
+      const n = vhsNoise[(i * 5 + f * 11) % vhsNoise.length], m = vhsNoise[(i * 3 + f * 17 + 1) % vhsNoise.length];
+      g.globalAlpha = 0.25 + 0.4 * m;
+      g.fillRect(n * W, 352 + m * 46, 20 + 90 * n, 2);
+    }
+    g.globalAlpha = 1;
+  }
+
+  export function setup(ctx) {
+    B = (n) => (ctx.beat ? ctx.beat(n) : n * 0.4);
+    clicks = [B(0), B(1), B(2)];
+    g = ctx.root.querySelector('#look-canvas').getContext('2d');
+    tk = ctx.root.querySelector('#click-ticks').getContext('2d');
+    pills = ['#pill-halftone', '#pill-risograph', '#pill-vhs'].map((s) => ctx.root.querySelector(s));
+    cursor = ctx.root.querySelector('#cursor');
+    tc = ctx.root.querySelector('#label-timecode');
+    // The plain frame (cream sky, orange sun, brown hill), the source the VHS look smears.
+    base = document.createElement('canvas'); base.width = W; base.height = H;
+    const b = base.getContext('2d');
+    b.fillStyle = '#f7f4ee'; b.fillRect(0, 0, W, H);
+    b.fillStyle = '#d9541e'; b.beginPath(); b.arc(SUN.x, SUN.y, SUN.r, 0, Math.PI * 2); b.fill();
+    b.fillStyle = '#8a5a3c'; hillPath(b, 0, 0); b.fill();
+    const next = ctx.rng(5);
+    speck = Array.from({ length: 260 }, () => ({ x: next() * W, y: next() * H, w: 1 + next() * 2.5, a: 0.4 + 0.5 * next() }));
+    vhsNoise = Array.from({ length: 512 }, () => next());
+  }
+
+  export function draw(t) {
+    let i = 0;
+    while (i < 2 && t >= clicks[i + 1]) i++;
+    const dt = t - clicks[i];
+    pills.forEach((p, j) => {
+      p.classList.toggle('on', j === i);
+      // Dip on the beat, release on the half beat after it.
+      p.style.transform = j === i && dt < B(0.5) ? 'translateY(3px)' : 'none';
+    });
+
+    if (i === 0) drawHalftone(dt); else if (i === 1) drawRiso(dt); else drawVhs(t, dt);
+
+    // Ticks burst from the clicked pill.
+    tk.clearRect(0, 0, 1920, 1080);
+    if (dt < 0.2) {
+      const p = PILLS[i], r0 = 60 + 300 * dt, len = 18;
+      tk.strokeStyle = '#d9541e'; tk.lineWidth = 4; tk.lineCap = 'round';
+      tk.globalAlpha = dt < 0.13 ? 1 : 1 - (dt - 0.13) / 0.07;
+      tk.beginPath();
+      for (let j = 0; j < 10; j++) {
+        const a = (j / 10) * Math.PI * 2 + 0.3, cx = Math.cos(a) * 1.9, cy = Math.sin(a);
+        tk.moveTo(p.x + cx * r0, p.y + cy * r0 * 0.6);
+        tk.lineTo(p.x + cx * (r0 + len), p.y + cy * (r0 + len) * 0.6);
+      }
+      tk.stroke(); tk.globalAlpha = 1;
+    }
+
+    // Cursor glides to the next pill and arrives on its beat, pressing as it lands.
+    let cx = PILLS[0].x, cy = PILLS[0].y;
+    for (let j = 1; j < 3; j++) {
+      // It speeds into the pill so the move ends exactly on the click beat.
+      const a = clicks[j] - B(0.5), b = clicks[j];
+      if (t >= b) { cx = PILLS[j].x; cy = PILLS[j].y; }
+      else if (t > a) {
+        const s = (t - a) / (b - a), e = s * s;
+        cx = PILLS[j - 1].x + (PILLS[j].x - PILLS[j - 1].x) * e; cy = PILLS[j].y - 40 * Math.sin(Math.PI * s);
+      }
+    }
+    let sc = 1;
+    for (const c of clicks) { const d = t - c; if (d >= 0 && d < B(0.5)) sc = 0.84; }
+    cursor.style.transform = `translate(${cx + 64}px, ${cy + 14}px) scale(${sc})`;
+
+    const f = START_FRAME + Math.floor(t * 30 + 1e-6), ss = Math.floor(f / 30), ff = f % 30;
+    tc.textContent = `00:00:${String(ss).padStart(2, '0')}:${String(ff).padStart(2, '0')}`;
+  }
+</script>

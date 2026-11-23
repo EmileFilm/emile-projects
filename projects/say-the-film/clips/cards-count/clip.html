@@ -1,0 +1,129 @@
+<style>
+  #ground { position: absolute; inset: 0; background: #f7f4ee; }
+  #speed-lines { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+  #chapter-number { position: absolute; left: 120px; top: 150px; font: italic 850 96px/0.9 'Fraunces', serif;
+    letter-spacing: -0.03em; color: #d9541e; }
+  #chapter-line { position: absolute; left: 124px; top: 252px; font: 600 40px/1 -apple-system, 'Inter', sans-serif; color: #1b1917; }
+  .card { position: absolute; top: 380px; width: 440px; height: 400px; border-radius: 14px; box-sizing: border-box;
+    border: 2px solid #1b1917; box-shadow: 8px 8px 0 #8a5a3c; transform-origin: 50% 50%; }
+  .ghost { position: absolute; top: 380px; width: 440px; height: 400px; border-radius: 14px; }
+  #card-counter { left: 240px; background: #d9541e; }
+  #card-bars { left: 740px; background: #1b1917; }
+  #card-line { left: 1240px; background: #f7f4ee; }
+  #counter-value { position: absolute; left: 40px; top: 110px; font: italic 850 124px/0.9 'Fraunces', serif;
+    letter-spacing: -0.03em; color: #f7f4ee; font-variant-numeric: tabular-nums; }
+  #counter-label { position: absolute; left: 44px; bottom: 56px; font: 600 34px/1 -apple-system, 'Inter', sans-serif; color: #f7f4ee; }
+  .bar { position: absolute; bottom: 56px; width: 52px; border-radius: 12px 12px 4px 4px; background: #f7f4ee;
+    transform-origin: 50% 100%; }
+  #line-chart { position: absolute; left: 0; top: 0; }
+  .label { position: absolute; font: 500 18px/1 'JetBrains Mono', monospace; text-transform: uppercase;
+    letter-spacing: 0.12em; color: rgba(27, 25, 23, 0.6); }
+  #label-brand { left: 64px; top: 64px; }
+  #label-chapter { right: 64px; top: 64px; }
+  #label-note { left: 64px; bottom: 120px; }
+  #label-timecode { right: 64px; bottom: 120px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="ground"></div>
+<canvas id="speed-lines" width="1920" height="1080"></canvas>
+<div id="chapter-number">06</div>
+<div id="chapter-line">Render</div>
+<div id="card-counter" class="card">
+  <div id="counter-value">0%</div>
+  <div id="counter-label">Rendering</div>
+</div>
+<div id="card-bars" class="card">
+  <div id="bar-1" class="bar" style="left:52px;height:150px"></div>
+  <div id="bar-2" class="bar" style="left:124px;height:230px"></div>
+  <div id="bar-3" class="bar" style="left:196px;height:190px"></div>
+  <div id="bar-4" class="bar" style="left:268px;height:270px"></div>
+  <div id="bar-5" class="bar" style="left:340px;height:310px"></div>
+</div>
+<div id="card-line" class="card">
+  <svg id="line-chart" width="436" height="396" viewBox="0 0 436 396">
+    <path id="line-chart-path" d="M44 320 L120 268 L180 290 L250 196 L310 220 L392 84" fill="none"
+      stroke="#8a5a3c" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" pathLength="1"
+      stroke-dasharray="1" stroke-dashoffset="1"/>
+    <circle id="line-chart-dot" cx="392" cy="84" r="16" fill="#d9541e" opacity="0"/>
+  </svg>
+</div>
+<div id="label-brand" class="label">ÉMILE</div>
+<div id="label-chapter" class="label">06 · RENDER</div>
+<div id="label-note" class="label">ILLUSTRATIVE</div>
+<div id="label-timecode" class="label">00:00:09:21</div>
+
+<script type="module">
+  // Where this clip sits in the film (after the five earlier scenes): the timecode reads film time.
+  let FILM_START = 9.7;
+  let B, g, cards, ghosts, bars, value, path, dot, tc, lines;
+  // Each card's start offset: the outer two come in from their own side, the middle one whips from the right.
+  const OFF = [-480, 900, 520];
+  const GX = [240, 740, 1240], GC = ['#d9541e', '#1b1917', '#8a5a3c'];
+
+  const back = (s) => { const c1 = 1.9, c3 = c1 + 1, u = s - 1; return 1 + c3 * u * u * u + c1 * u * u; };
+  const outCubic = (s) => 1 - Math.pow(1 - s, 3);
+  const clamp = (v) => Math.max(0, Math.min(1, v));
+
+  export function setup(ctx) {
+    B = (n) => (ctx.beat ? ctx.beat(n) : n * 0.4);
+    FILM_START = ctx.vars.filmStart ?? 9.7;
+    const q = (s) => ctx.root.querySelector(s);
+    g = q('#speed-lines').getContext('2d');
+    cards = ['#card-counter', '#card-bars', '#card-line'].map(q);
+    bars = [1, 2, 3, 4, 5].map((i) => q('#bar-' + i));
+    value = q('#counter-value'); path = q('#line-chart-path'); dot = q('#line-chart-dot');
+    tc = q('#label-timecode');
+    const next = ctx.rng(6);
+    lines = Array.from({ length: 14 }, () => ({ y: 340 + next() * 480, len: 180 + next() * 360, x: next() * 1920, w: 3 + next() * 5, c: next() < 0.6 ? '#8a5a3c' : '#2d2823' }));
+  }
+
+  export function draw(t) {
+    // Cards are there on the half beat after the cut; counter, bars and line land on the next beat and a half.
+    const land = B(0.5), hit = B(1.5);
+    const sFly = clamp(t / land);
+    g.clearRect(0, 0, 1920, 1080);
+
+    cards.forEach((el, i) => {
+      const off = OFF[i] * (1 - back(sFly));
+      const speed = Math.abs(OFF[i]) * (1 - sFly);
+      const stretch = sFly < 1 ? 1 + 0.3 * Math.min(1, speed / 400) : 1;
+      el.style.transform = `translateX(${off.toFixed(1)}px) scaleX(${stretch.toFixed(3)})`;
+      // A 3-step ghost trail behind the card while it travels (40/20/10%).
+      if (sFly < 1) {
+        [[0.08, 0.4], [0.16, 0.2], [0.24, 0.1]].forEach(([lagS, a]) => {
+          const x = GX[i] + OFF[i] * (1 - back(Math.max(0, sFly - lagS)));
+          g.globalAlpha = a * (1 - sFly); g.fillStyle = GC[i];
+          g.beginPath(); g.roundRect(x - 220 * (stretch - 1), 380, 440 * stretch, 400, 14); g.fill();
+        });
+        g.globalAlpha = 1;
+      }
+    });
+
+    // Speed lines streak across while the cards are in flight, then clear on the landing.
+    if (t < land + 0.04) {
+      const a = t < land ? 1 : 1 - (t - land) / 0.04;
+      g.lineCap = 'round';
+      for (const l of lines) {
+        const x = ((l.x - t * 5200) % 2400 + 2400) % 2400 - 240;
+        g.globalAlpha = 0.7 * a; g.strokeStyle = l.c; g.lineWidth = l.w;
+        g.beginPath(); g.moveTo(x, l.y); g.lineTo(x + l.len, l.y); g.stroke();
+      }
+      g.globalAlpha = 1;
+    }
+
+    // Counter, bars and the line run from the landing to the hit.
+    const s = clamp((t - land) / (hit - land));
+    // Linear so the number keeps moving every frame and stops exactly on the hit.
+    value.textContent = Math.floor(100 * s) + '%';
+    bars.forEach((b, i) => {
+      // Accelerate into place like a slam, ending on the hit.
+      const h = s * s;
+      b.style.transform = `scaleY(${h.toFixed(3)})`;
+    });
+    path.setAttribute('stroke-dashoffset', (1 - outCubic(s)).toFixed(4));
+    dot.setAttribute('opacity', t >= hit ? '1' : '0');
+
+    const f = Math.floor((FILM_START + t) * 30 + 1e-6), ss = Math.floor(f / 30), ff = f % 30;
+    tc.textContent = `00:00:${String(ss).padStart(2, '0')}:${String(ff).padStart(2, '0')}`;
+  }
+</script>

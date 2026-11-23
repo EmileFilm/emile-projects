@@ -1,0 +1,134 @@
+<style>
+  #ground { position: absolute; inset: 0; background: radial-gradient(90% 70% at 50% 46%, #2d2823, #181513 48%, #100f0e); }
+  #chapter-number { position: absolute; left: 120px; top: 146px; font: italic 850 96px/0.9 'Fraunces', serif;
+    letter-spacing: -0.03em; color: #d9541e; }
+  #chapter-line { position: absolute; left: 124px; top: 248px; font: 600 36px/1 -apple-system, 'Inter', sans-serif;
+    color: #f7f4ee; }
+  /* The single lane the card lands on, centred at 0.55 of the height; it peeks out either side of the card from the first frame. */
+  #track { position: absolute; left: 360px; top: 519px; width: 1200px; height: 150px; box-sizing: border-box;
+    background: #1b1917; border: 2px solid #3b352f; border-radius: 12px; }
+  /* Card and both halves share one box animation, so the halves replace the card pixel for pixel at the cut. */
+  #frame-card, .clip-half { position: absolute; left: 600px; top: 357.5px; width: 720px; height: 405px;
+    background: #f7f4ee; will-change: left, top, width, height; }
+  #frame-card { border-radius: 14px; overflow: hidden; box-shadow: 8px 8px 0 #8a5a3c; }
+  .clip-half { opacity: 0; }
+  #clip-left { clip-path: inset(0 50% 0 0 round 12px 0 0 12px); }
+  #clip-right { clip-path: inset(0 0 0 50% round 0 12px 12px 0); }
+  .sun { position: absolute; left: 34%; top: 45%; width: 124px; height: 124px; border-radius: 50%;
+    background: #d9541e; transform: translate(-50%, -50%); }
+  .hill { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .marker { position: absolute; left: 34%; top: 45%; width: 260px; height: 230px; overflow: visible;
+    transform: translate(-50%, -50%) scale(1); }
+  #cut-line { position: absolute; left: 957px; top: 464px; width: 6px; height: 260px; background: #f7f4ee;
+    border-radius: 3px; transform: rotate(8deg); clip-path: inset(0 0 100% 0); }
+  .label { position: absolute; font: 500 18px/1 'JetBrains Mono', monospace; text-transform: uppercase;
+    letter-spacing: 0.12em; color: rgba(247, 244, 238, 0.6); }
+  #label-brand { left: 64px; top: 64px; }
+  #label-chapter { right: 64px; top: 64px; }
+  #label-note { left: 64px; bottom: 120px; }
+  #label-timecode { right: 64px; bottom: 120px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="ground"></div>
+<div id="chapter-number">04</div>
+<div id="chapter-line">Circle it. Cut it.</div>
+<div id="track"></div>
+<div id="clip-left" class="clip-half"></div>
+<div id="clip-right" class="clip-half"></div>
+<div id="frame-card"></div>
+<div id="cut-line"></div>
+<div id="label-brand" class="label">ÉMILE</div>
+<div id="label-chapter" class="label">04 · CUT</div>
+<div id="label-note" class="label">ILLUSTRATIVE</div>
+<div id="label-timecode" class="label">00:00:07:06</div>
+
+<script type="module">
+  // This clip starts at film frame 216; the timecode counts film time.
+  const START_FRAME = 216;
+  let tc;
+
+  // A hand-drawn loop around the sun: one stroke that overshoots its start, radius wobbling a little.
+  function markerPath(cx, cy) {
+    const pts = [];
+    for (let i = 0; i <= 64; i++) {
+      const a = (-110 + i * (395 / 64)) * Math.PI / 180;
+      const r = 92 + 8 * Math.sin(a * 2 + 0.6) + i * 0.16;
+      pts.push(`${(cx + r * Math.cos(a) * 1.12).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`);
+    }
+    return 'M' + pts.join(' L');
+  }
+
+  // The flat scene, laid out in shares of its box so it stays the same picture as the card becomes a wide clip.
+  // The hill stretches with the box; the sun and its marker shrink by keyframes so they stay round.
+  function scene(id, drawn) {
+    return `<div id="${id}-sun" class="sun"></div>
+      <svg id="${id}-hill" class="hill" viewBox="0 0 720 405" preserveAspectRatio="none">
+        <path d="M0 405 L0 300 Q200 205 420 288 Q560 340 720 268 L720 405 Z" fill="#8a5a3c"/>
+        <path d="M0 405 L0 362 Q300 300 720 380 L720 405 Z" fill="#2d2823"/>
+      </svg>
+      <svg id="${id}-marker" class="marker" viewBox="0 0 260 230">
+        <path id="${id}-marker-stroke" d="${markerPath(130, 115)}" pathLength="1" fill="none" stroke="#d9541e"
+          stroke-width="11" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 1"
+          stroke-dashoffset="${drawn ? 0 : 1}"/>
+      </svg>`;
+  }
+
+  export function setup(ctx) {
+    const B = (n) => (ctx.beat ? ctx.beat(n) : n * 0.4);
+    const root = ctx.root;
+    const $ = (s) => root.querySelector(s);
+    tc = $('#label-timecode');
+    const hold = { fill: 'both' };
+    const ms = (s) => s * 1000;
+
+    $('#frame-card').innerHTML = scene('frame-scene', false);
+    $('#clip-left').innerHTML = scene('clip-left-scene', true);
+    $('#clip-right').innerHTML = scene('clip-right-scene', true);
+
+    // Beat 1: the marker circle draws itself in one stroke, landing on 0.4 s.
+    $('#frame-scene-marker-stroke').animate(
+      [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }],
+      { ...hold, delay: ms(B(0.25)), duration: ms(B(1) - B(0.25)), easing: 'cubic-bezier(.45,0,.4,1)' });
+
+    // Straight from the circle (0.4 s): the card moves down onto the track in one 0.2 s overshoot move,
+    // becoming a 900 × 150 clip that fills the track's height. Never hidden, never faded.
+    // It sets off 67 ms early so the overshoot lands on the beat at 0.4 s, as the circle closes.
+    const drop = { ...hold, delay: ms(B(1) - 0.067), duration: 200, easing: 'cubic-bezier(.2,1.4,.3,1)' };
+    const box = [
+      { left: '600px', top: '357.5px', width: '720px', height: '405px' },
+      { left: '510px', top: '519px', width: '900px', height: '150px' }];
+    for (const id of ['#frame-card', '#clip-left', '#clip-right']) $(id).animate(box, drop);
+    // The card lays flat on the track: its shadow and corners become the clip's.
+    $('#frame-card').animate(
+      [{ boxShadow: '8px 8px 0 #8a5a3c', borderRadius: '14px' }, { boxShadow: '0px 0px 0 #8a5a3c', borderRadius: '12px' }],
+      drop);
+    for (const p of ['frame-scene', 'clip-left-scene', 'clip-right-scene']) {
+      $(`#${p}-sun`).animate([{ width: '124px', height: '124px' }, { width: '72px', height: '72px' }], drop);
+      $(`#${p}-marker`).animate(
+        [{ transform: 'translate(-50%,-50%) scale(1)' }, { transform: 'translate(-50%,-50%) scale(0.5)' }], drop);
+    }
+
+    // At 0.5 s the halves take the card's place, identical in that frame, so the cut can open it.
+    const CUT = 0.5;
+    $('#frame-card').animate([{ visibility: 'visible' }, { visibility: 'hidden' }],
+      { ...hold, delay: ms(CUT), duration: 1 });
+    for (const id of ['#clip-left', '#clip-right'])
+      $(id).animate([{ opacity: 0 }, { opacity: 1 }], { ...hold, delay: ms(CUT), duration: 1 });
+
+    // The cream cut slashes down through the clip's middle in 0.08 s, then leaves from the top as the halves part.
+    $('#cut-line').animate(
+      [{ clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', offset: 0.5 }, { clipPath: 'inset(100% 0 0 0)' }],
+      { ...hold, delay: ms(CUT), duration: 160, easing: 'cubic-bezier(.6,0,1,1)' });
+
+    // The halves jump 40 px apart with overshoot and settle by 0.8 s, then hold so the gap reads.
+    const jump = (sign) => [{ transform: 'translateX(0px)' }, { transform: `translateX(${sign * 20}px)` }];
+    const jt = { ...hold, delay: ms(CUT + 0.08), duration: ms(B(2) - (CUT + 0.08)), easing: 'cubic-bezier(.2,1.4,.3,1)' };
+    $('#clip-left').animate(jump(-1), jt);
+    $('#clip-right').animate(jump(1), jt);
+  }
+
+  export function draw(t) {
+    const f = START_FRAME + Math.floor(t * 30 + 1e-6), ss = Math.floor(f / 30), ff = f % 30;
+    tc.textContent = `00:00:${String(ss).padStart(2, '0')}:${String(ff).padStart(2, '0')}`;
+  }
+</script>

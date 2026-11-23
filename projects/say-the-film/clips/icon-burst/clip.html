@@ -1,0 +1,254 @@
+<style>
+  #ground { position: absolute; inset: 0; background: radial-gradient(90% 70% at 50% 46%, #2d2823, #181513 48%, #100f0e); }
+  #halo { position: absolute; left: 360px; top: 0; width: 1200px; height: 1080px; opacity: 0;
+    background: radial-gradient(circle, rgba(217, 84, 30, 0.3), transparent 52%); }
+  /* Icon shots, speed lines and ghost trails are one drawing, painted per frame. */
+  #icons { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+  #wordmark { position: absolute; left: 0; top: 0; transform-origin: 0 0; white-space: nowrap; opacity: 0;
+    font: italic 850 300px/0.9 'Fraunces', serif; letter-spacing: -0.03em; color: #f7f4ee; padding: 0 0.12em; }
+  #logo { position: absolute; width: 180px; height: 180px; left: 0; top: 0; opacity: 0; }
+  #tagline { position: absolute; left: 0; width: 1920px; top: 554px; text-align: center; white-space: nowrap;
+    font: italic 850 72px/1 'Fraunces', serif; letter-spacing: -0.03em; color: #f7f4ee; }
+  #tagline span { display: inline-block; opacity: 0; }
+  #pill { position: absolute; left: 50%; top: 680px; padding: 14px 34px; border-radius: 99px; background: #d9541e;
+    font: 800 32px/1 'Fraunces', serif; color: #f7f4ee; white-space: nowrap; transform: translateX(-50%); opacity: 0; }
+  #cursor { position: absolute; left: 0; top: 0; width: 40px; height: 52px; opacity: 0; }
+  #disc { position: absolute; left: 0; top: 0; width: 90px; height: 90px; border-radius: 45px; background: #d9541e; opacity: 0; }
+  .label { position: absolute; font: 500 18px/1 'JetBrains Mono', monospace; text-transform: uppercase;
+    letter-spacing: 0.12em; color: rgba(247, 244, 238, 0.6); }
+  #label-brand { left: 64px; top: 64px; }
+  #label-chapter { right: 64px; top: 64px; }
+  #label-note { left: 64px; bottom: 120px; }
+  #label-timecode { right: 64px; bottom: 120px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="ground"></div>
+<div id="halo"></div>
+<canvas id="icons" width="1920" height="1080"></canvas>
+<div id="wordmark"><span id="wordmark-e">E</span>mile</div>
+<img id="logo" alt="Émile">
+<div id="tagline"><span id="tagline-1">Make films</span> <span id="tagline-2">with your</span> <span id="tagline-3">AI.</span></div>
+<div id="pill">Download for Mac</div>
+<svg id="cursor" viewBox="0 0 40 52"><path d="M3 3 L3 42 L13 32 L20 48 L27 45 L20 29 L34 29 Z" fill="#f7f4ee" stroke="#100f0e" stroke-width="3" stroke-linejoin="round"/></svg>
+<div id="disc"></div>
+<div id="label-brand" class="label">ÉMILE</div>
+<div id="label-chapter" class="label">—</div>
+<div id="label-note" class="label">FOR MAC</div>
+<div id="label-timecode" class="label">00:00:00:00</div>
+
+<script type="module">
+  const CREAM = '#f7f4ee', INK = '#1b1917', ORANGE = '#d9541e', BROWN = '#8a5a3c';
+  const GLOW = 'radial-gradient(90% 70% at 50% 46%, #2d2823, #181513 48%, #100f0e)';
+  const GROUNDS = [CREAM, ORANGE, GLOW, CREAM, BROWN, ORANGE, INK];
+  const START_FRAME = 312; // where this clip sits in the film, for the running timecode
+  let B, g, el = {}, W, H, eL, eW, acc, endPos;
+
+  const clamp = (x) => Math.max(0, Math.min(1, x));
+  const backOut = (s) => { const c = 1.9; s = clamp(s); return 1 + (c + 1) * Math.pow(s - 1, 3) + c * Math.pow(s - 1, 2); };
+  const cubicOut = (s) => 1 - Math.pow(1 - clamp(s), 3);
+  const lerp = (a, b, s) => a + (b - a) * s;
+
+  function rr(x, y, w, h, r) { g.beginPath(); g.roundRect(x, y, w, h, r); g.fill(); }
+
+  // Each icon draws around (0,0) in a 360 px box; u is seconds into its shot.
+  const ICONS = [
+    (u) => { // playhead nudging right
+      const dx = lerp(-40, 30, cubicOut(u / 0.18));
+      g.fillStyle = INK;
+      rr(-180, 96, 360, 14, 7);
+      for (let i = 0; i < 7; i++) rr(-174 + i * 58, 70, 8, 26, 4);
+      rr(dx - 8, -110, 16, 280, 8);
+      g.fillStyle = ORANGE; g.beginPath(); g.arc(dx, -130, 52, 0, Math.PI * 2); g.fill();
+    },
+    (u) => { // waveform
+      g.fillStyle = CREAM;
+      for (let i = 0; i < 9; i++) {
+        const h = 60 + 220 * Math.abs(Math.sin(u * 26 + i * 0.9)) * (1 - Math.abs(i - 4) / 7);
+        rr(-170 + i * 40, -h / 2, 26, h, 13);
+      }
+    },
+    (u) => { // film strip, one orange frame
+      const off = -u * 400;
+      g.save(); g.beginPath(); g.rect(-180, -110, 360, 220); g.clip();
+      g.fillStyle = CREAM; g.fillRect(-180, -110, 360, 220);
+      for (let i = 0; i < 6; i++) {
+        const x = -180 + (i - 1) * 120 + 60 + off;
+        g.fillStyle = '#100f0e';
+        for (let k = 0; k < 4; k++) { rr(x + 6 + k * 28, -96, 16, 16, 4); rr(x + 6 + k * 28, 80, 16, 16, 4); }
+        g.fillStyle = i === 2 ? ORANGE : '#2d2823'; rr(x + 8, -64, 104, 128, 10);
+      }
+      g.restore();
+    },
+    (u) => { // scissors snapping shut
+      const a = lerp(0.42, 0.02, cubicOut(u / 0.12));
+      for (const sgn of [1, -1]) {
+        g.save(); g.translate(20, 0); g.rotate(sgn * a);
+        g.fillStyle = INK; g.beginPath(); g.moveTo(-40, -4 * sgn); g.lineTo(-10, -26 * sgn); g.lineTo(170, -6 * sgn); g.lineTo(170, 0); g.lineTo(-40, 14 * sgn); g.closePath(); g.fill();
+        g.lineWidth = 20; g.strokeStyle = INK; g.beginPath(); g.moveTo(-30, 6 * sgn); g.lineTo(-80, 40 * sgn); g.stroke();
+        g.strokeStyle = ORANGE; g.lineWidth = 22; g.beginPath(); g.arc(-125, 62 * sgn, 44, 0, Math.PI * 2); g.stroke();
+        g.restore();
+      }
+      g.fillStyle = CREAM; g.beginPath(); g.arc(0, 0, 10, 0, Math.PI * 2); g.fill();
+    },
+    (u) => { // chat bubble, dots pulsing
+      g.fillStyle = CREAM; rr(-175, -130, 350, 220, 40);
+      g.beginPath(); g.moveTo(-90, 80); g.lineTo(-130, 150); g.lineTo(-30, 80); g.closePath(); g.fill();
+      g.fillStyle = ORANGE;
+      for (let i = 0; i < 3; i++) {
+        const s = 1 + 0.35 * Math.max(0, Math.sin(u * 40 - i * 1.4));
+        g.beginPath(); g.arc(-80 + i * 80, -20, 24 * s, 0, Math.PI * 2); g.fill();
+      }
+    },
+    (u) => { // track bars stacking down
+      for (let i = 0; i < 3; i++) {
+        const s = backOut((u - i * 0.035) / 0.1), y = -150 + i * 104;
+        if (s <= 0) continue;
+        g.fillStyle = INK; rr(-180, lerp(y - 60, y, s), 360, 80, 14);
+        g.fillStyle = i === 1 ? BROWN : CREAM; rr(-180 + 20 + i * 60, lerp(y - 60, y, s) + 14, 150 - i * 20, 52, 12);
+      }
+    },
+    (u) => { // sparkle bursts open, then shrinks as the disc leaves it
+      const open = backOut(u / 0.14), leave = u > 0.2 ? 1 - 0.5 * cubicOut((u - 0.2) / 0.15) : 1;
+      const R = 180 * open * leave, r = 34 * open * leave;
+      g.fillStyle = CREAM; g.beginPath();
+      for (let k = 0; k < 8; k++) {
+        const ang = -Math.PI / 2 + k * Math.PI / 4, rad = k % 2 ? r : R;
+        g.lineTo(Math.cos(ang) * rad, Math.sin(ang) * rad);
+      }
+      g.closePath(); g.fill();
+      g.strokeStyle = CREAM; g.lineWidth = 8; g.lineCap = 'round';
+      if (u > 0.04 && u < 0.2) for (let k = 0; k < 4; k++) {
+        const ang = -Math.PI / 4 + k * Math.PI / 2, d = 150 + 300 * (u - 0.04);
+        g.globalAlpha = 1 - (u - 0.04) / 0.16;
+        g.beginPath(); g.moveTo(Math.cos(ang) * d, Math.sin(ang) * d); g.lineTo(Math.cos(ang) * (d + 40), Math.sin(ang) * (d + 40)); g.stroke();
+      }
+      g.globalAlpha = 1;
+    },
+  ];
+
+  function speedLines(x, y, len, alpha) {
+    g.strokeStyle = CREAM; g.lineCap = 'round'; g.lineWidth = 5;
+    const rows = [-48, -22, 6, 30, 52];
+    rows.forEach((dy, i) => {
+      const l = len * (0.5 + 0.5 * ((i * 37) % 5) / 4);
+      g.globalAlpha = alpha; g.beginPath(); g.moveTo(x - 80 - (i % 2) * 40, y + dy); g.lineTo(x - 80 - (i % 2) * 40 - l, y + dy); g.stroke();
+    });
+    g.globalAlpha = 1;
+  }
+
+  // Disc centre and look at time t, through shoot-out, flight, landing and the accent morph.
+  function disc(t) {
+    const [b35, b4, b5, b55, b6, b7] = [B(3.5), B(4), B(5), B(5.5), B(6), B(7)];
+    if (t < b35) return null;
+    if (t < b4) { const s = (t - b35) / (b4 - b35); return { x: 960 + 1240 * s * s, y: 540, vx: 1 }; }
+    // Accent position follows the wordmark once it moves.
+    const a = accentAt(t);
+    const hoverY = a.y - 170, xIn = b5 - 0.16;
+    if (t < xIn) { const s = (t - b4) / (xIn - b4); return { x: lerp(-120, a.x, cubicOut(s)), y: hoverY, vx: 1 - s }; }
+    if (t < b5) { const s = (t - xIn) / (b5 - xIn); return { x: a.x, y: lerp(hoverY, a.y, s * s), vy: s }; }
+    return { x: a.x, y: a.y, morph: clamp((t - b5 - 0.05) / (b55 - b5 - 0.05)), squash: t - b5 < 0.08 ? 1 - (t - b5) / 0.08 : 0, scale: a.s };
+  }
+
+  function wordmarkAt(t) {
+    const [b6, b7] = [B(6), B(7)];
+    const land = { x: 960 - W / 2, y: 560 - H / 2, s: 1 };
+    if (t < b6) return land;
+    // The jolt hits on beat 6; the travel trails it slightly so it settles on the half-beat after.
+    const s = backOut((t - b6 - 0.067) / (b7 - b6));
+    const jolt = t - b6 < 0.06 ? 1 + 0.05 * Math.sin(Math.PI * (t - b6) / 0.06) : 1;
+    const sc = lerp(1, 0.5, s) * jolt;
+    return { x: lerp(land.x, endPos.x, s), y: lerp(land.y, endPos.y, s), s: sc };
+  }
+  function accentAt(t) { const w = wordmarkAt(t); return { x: w.x + w.s * acc.x, y: w.y + w.s * acc.y, s: w.s }; }
+
+  export function setup(ctx) {
+    B = (n) => (ctx.beat ? ctx.beat(n) : n * 0.4);
+    g = ctx.root.querySelector('#icons').getContext('2d');
+    for (const id of ['ground', 'halo', 'wordmark', 'wordmark-e', 'logo', 'pill', 'cursor', 'disc', 'label-brand', 'label-chapter', 'label-note', 'label-timecode'])
+      el[id] = ctx.root.querySelector('#' + id);
+    el.logo.src = ctx.asset('brand/Émile/logo-dark.png');
+    W = el.wordmark.offsetWidth; H = el.wordmark.offsetHeight;
+    eL = el['wordmark-e'].offsetLeft; eW = el['wordmark-e'].offsetWidth;
+    // The italic E leans right, so its acute sits right of the letter's box centre, above the cap line.
+    acc = { x: eL + eW * 0.78, y: -0.07 * 300 };
+    const rowW = 180 + 40 + W / 2, rowL = 960 - rowW / 2, rowY = 420;
+    endPos = { x: rowL + 220, y: rowY - H / 4 + 8 };
+    el.logo.style.left = rowL + 'px'; el.logo.style.top = (rowY - 90) + 'px';
+
+    const pop = (node, at, from = 0.6) => node.animate(
+      [{ opacity: 0, transform: `scale(${from})` }, { opacity: 1, offset: 0.01 }, { opacity: 1, transform: 'scale(1)' }],
+      { delay: (at - 0.07) * 1000, duration: 250, fill: 'both', easing: 'cubic-bezier(.2,1.4,.3,1)' });
+    pop(el.logo, B(7));
+    ['tagline-1', 'tagline-2', 'tagline-3'].forEach((id, i) => {
+      ctx.root.querySelector('#' + id).animate(
+        [{ opacity: 0, transform: 'translateY(60px) scaleY(1.3)' }, { opacity: 1, offset: 0.01 }, { opacity: 1, transform: 'none' }],
+        { delay: (B(7 + i * 0.5) - 0.07) * 1000, duration: 250, fill: 'both', easing: 'cubic-bezier(.2,1.4,.3,1)' });
+    });
+    el.pill.animate(
+      [{ opacity: 0, transform: 'translateX(-50%) scale(0.6)' }, { opacity: 1, offset: 0.01 }, { opacity: 1, transform: 'translateX(-50%) scale(1)' }],
+      { delay: (B(9) - 0.07) * 1000, duration: 250, fill: 'both', easing: 'cubic-bezier(.2,1.4,.3,1)' });
+    // The press: down on beat 11, back up a moment later.
+    el.pill.animate(
+      [{ transform: 'translateX(-50%) translateY(0)' }, { transform: 'translateX(-50%) translateY(2px) scale(0.97)' }, { transform: 'translateX(-50%) translateY(0)' }],
+      { delay: (B(11) + 0.017) * 1000, duration: 220, fill: 'none', easing: 'ease-out' });
+    el.cursor.animate(
+      [{ opacity: 0, transform: 'translate(1320px, 900px)' }, { opacity: 1, offset: 0.01, transform: 'translate(1320px, 900px)' }, { opacity: 1, transform: 'translate(1030px, 706px)' }],
+      { delay: B(9.5) * 1000, duration: (B(10.5) - B(9.5)) * 1000, fill: 'both', easing: 'cubic-bezier(.25,.8,.3,1)' });
+    // After the press the cursor steps off down-right so the pill's words stay readable through the hold;
+    // it eases out to rest on the half-beat after the press. Created later, so it overrides the glide once it starts.
+    el.cursor.animate(
+      [{ opacity: 1, transform: 'translate(1030px, 706px)' }, { opacity: 1, transform: 'translate(1090px, 766px)' }],
+      { delay: (B(11.5) - 0.13) * 1000, duration: 200, fill: 'forwards', easing: 'cubic-bezier(.25,.8,.3,1)' });
+  }
+
+  export function draw(t, ctx) {
+    g.clearRect(0, 0, 1920, 1080);
+    const shot = Math.min(6, Math.floor(t / B(0.5) + 1e-6));
+    const inIcons = t < B(4);
+    const ground = inIcons ? GROUNDS[shot] : GLOW;
+    el.ground.style.background = ground;
+    const onCream = ground === CREAM;
+    for (const id of ['label-brand', 'label-chapter', 'label-note', 'label-timecode'])
+      el[id].style.color = onCream ? 'rgba(27, 25, 23, 0.6)' : 'rgba(247, 244, 238, 0.6)';
+    el.halo.style.opacity = t >= B(6) ? 1 : 0;
+
+    if (inIcons) {
+      const u = t - shot * B(0.5);
+      const s = 0.6 + 0.4 * backOut(u / 0.12);
+      g.save(); g.translate(960, 540); g.scale(s, s); ICONS[shot](u); g.restore();
+    }
+
+    // Disc: stretched along its move, with a 3-step ghost trail at 40/20/10%.
+    const d = disc(t);
+    if (!d) { el.disc.style.opacity = 0; }
+    else {
+      el.disc.style.opacity = 1;
+      let w = 90, h = 90, rad = 45, rot = 0, sc = d.scale ?? 1, sx = 1, sy = 1;
+      if (d.vx) {
+        sx = 1 + 0.6 * d.vx; sy = 1 - 0.25 * d.vx;
+        for (const [k, a] of [[1, 0.4], [2, 0.2], [3, 0.1]]) {
+          g.globalAlpha = a; g.fillStyle = ORANGE; g.beginPath();
+          g.ellipse(d.x - k * 70 * d.vx, d.y, 45 * sx, 45 * sy, 0, 0, Math.PI * 2); g.fill();
+        }
+        g.globalAlpha = 1;
+        speedLines(d.x - 45 * sx + 60, d.y, 260 * d.vx + 40, Math.min(1, d.vx * 1.5));
+      } else if (d.vy) {
+        sy = 1 + 0.3 * d.vy; sx = 1 - 0.15 * d.vy;
+      } else {
+        const m = cubicOut(d.morph);
+        sx = 1 + 0.4 * d.squash; sy = 1 - 0.4 * d.squash;
+        w = lerp(90, 34, m); h = lerp(90, 92, m); rad = lerp(45, 14, m); rot = lerp(0, 32, m);
+      }
+      Object.assign(el.disc.style, { width: w + 'px', height: h + 'px', borderRadius: rad + 'px' });
+      el.disc.style.transform = `translate(${(d.x - w / 2).toFixed(1)}px, ${(d.y - h / 2).toFixed(1)}px) scale(${sc.toFixed(3)}) rotate(${rot.toFixed(1)}deg) scale(${sx.toFixed(3)}, ${sy.toFixed(3)})`;
+    }
+
+    // Wordmark: shown from the moment the disc comes in to land on it.
+    const wm = wordmarkAt(t);
+    el.wordmark.style.opacity = t >= B(4) ? 1 : 0;
+    el.wordmark.style.transform = `translate(${wm.x.toFixed(1)}px, ${wm.y.toFixed(1)}px) scale(${wm.s.toFixed(4)})`;
+
+    const f = START_FRAME + Math.floor(t * 30 + 1e-6), ss = Math.floor(f / 30), ff = f % 30;
+    el['label-timecode'].textContent = `00:00:${String(ss).padStart(2, '0')}:${String(ff).padStart(2, '0')}`;
+  }
+</script>

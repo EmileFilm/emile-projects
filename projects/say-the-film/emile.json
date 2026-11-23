@@ -1,0 +1,293 @@
+{
+ "$schema": "https://emile.dev/schema/project-6.json",
+ "version": 6,
+ "revision": 17,
+ "project": {
+  "id": "bb908c87-399a-4885-b78c-b632af957210",
+  "title": "Say the film",
+  "idea": "Remake the reference (cevox__ motion reel, 15 s, 16:9, 17 shots) shot for shot in structure and rhythm, but about Émile: a Mac video editor built for AI — you say the film you want, and the AI makes it on a real multi-track timeline. Use the Émile brand: grounds #100f0e / #1b1917 with soft radial glows (radial-gradient(90% 70% at 50% 46%, #2d2823, #181513 48%, #100f0e)), cream text #f7f4ee, a single burnt-orange accent #d9541e (replaces the reference's red; use orange+cream+brown instead of its red/blue/yellow primaries), headlines in heavy italic Fraunces (weight 850, tight tracking), body in system sans; rounded cards (radius 12–14 px), pill shapes. Tone: short, direct, human. Structure following the reference: opening 0–3 s: a bouncing orange ball with squash & stretch and dotted trail on black, then on an orange ground a heavy italic headline slamming in word by word on the beat, e.g. \"SAY IT. IT MOVES.\" Body 3–10.5 s: numbered chapters, ~1–1.5 s each, each showing one Émile idea as motion: a chat line being typed (\"make me a launch film\") morphing into shapes; clips dropping onto stacked tracks of a multi-track timeline; a playhead sweeping across; a circle drawn on a frame (circle it) and a clip being cut (cut it); filter looks swapping (halftone, risograph, VHS-like); cards flying in with a counter and bars growing. Fast section ~10.5–11.9 s: 7 tiny icon shots one per beat (~0.2 s): playhead, waveform, film strip, scissors, chat bubble, track stack, sparkle. Ending 11.9–15 s: a disc rushes across the cut and lands as the accent in the wordmark, which grows into an end card with the Émile logo (assets/brand/Émile/logo-dark.png, used as given, never redrawn), the italic Fraunces \"Émile\" wordmark, the line \"Make films with your AI.\" and a small pill \"Download for Mac\". On-screen words in English. Do not copy the reference's words, logo or brand — only how it is built.",
+  "aspect": "16:9",
+  "fps": {
+   "num": 30,
+   "den": 1
+  },
+  "language": "en",
+  "duration": null,
+  "seed": 2071454976,
+  "series": null,
+  "created_with": "emile-engine 0.1.0 on darwin",
+  "bpm": 150
+ },
+ "materials": [],
+ "facts": [],
+ "timeline": {
+  "clips": [
+   {
+    "id": "music",
+    "type": "sound",
+    "name": "Music",
+    "frames": [
+     0,
+     408
+    ],
+    "track": -1,
+    "sound": {
+     "file": "assets/music/upbeat-modern-electronic-bright--14515641.m4a",
+     "in": 0.075,
+     "role": "music",
+     "fade_in": 9,
+     "fade_out": 2
+    }
+   },
+   {
+    "id": "bounce",
+    "type": "code",
+    "name": "Orange ball bounce",
+    "frames": [
+     0,
+     48
+    ],
+    "moments": [
+     {
+      "id": "bounce-ball",
+      "seconds": 1.6,
+      "say": "",
+      "show": "Film black #100f0e ground with the faint brand glow. A thin cream wavy line (2 px) crosses the lower middle. An orange #d9541e ball, 90 px, drops from top-left: on beat 1 it hits the line and squashes flat (1.4× wide, 0.6× tall), stretches tall as it rebounds; on beat 2 a smaller bounce further right; on beat 3 a third; on beat 4 it rolls to rest at centre. Behind it a dotted trail of small cream dots marks its arc, each dot fading. Corner frame labels as the conventions say.",
+      "at": 0
+     }
+    ],
+    "drawn": 48
+   },
+   {
+    "id": "grain",
+    "type": "filter",
+    "frames": [
+     0,
+     456
+    ],
+    "filter": {
+     "id": "emile/grain",
+     "version": "^1",
+     "params": {
+      "amount": 0.18,
+      "size": 1.4,
+      "colour": false
+     }
+    },
+    "track": 2
+   },
+   {
+    "id": "title-slam",
+    "type": "code",
+    "name": "SAY IT. IT MOVES.",
+    "frames": [
+     48,
+     96
+    ],
+    "moments": [
+     {
+      "id": "title-words",
+      "seconds": 1.6,
+      "say": "",
+      "show": "Full Ember orange #d9541e ground. Heavy italic Fraunces 850 in #1b1917, two lines centred: 'SAY IT.' / 'IT MOVES.' One word slams in per beat with a short motion-blur stretch and overshoot: beat 1 'SAY', beat 2 'IT.', beat 3 'IT', beat 4 'MOVES.' while the whole block pushes in 8%. Labels cream at 60%.",
+      "at": 0
+     }
+    ],
+    "drawn": 48
+   },
+   {
+    "id": "chat-to-shapes",
+    "type": "code",
+    "name": "A line becomes shapes",
+    "frames": [
+     96,
+     132
+    ],
+    "moments": [
+     {
+      "id": "chat-type",
+      "seconds": 1.2,
+      "say": "",
+      "show": "Cream #f7f4ee ground. Top-left '01' orange Fraunces italic and 'Say the film you want' in sans. Centre: a #1b1917 chat pill, radius 99 px, 900 px wide; on beat 1 'make me a launch film' types into it in cream sans 40 px with an orange caret. On beat 2 the pill collapses into one orange shape that morphs on each half-beat: circle, rounded square, triangle, star, with brown #8a5a3c and #2d2823 offset echoes and thin #1b1917 guide boxes around it; on beat 3 it ends as a rounded clip block.",
+      "at": 0
+     }
+    ],
+    "drawn": 36
+   },
+   {
+    "id": "tracks-drop",
+    "type": "code",
+    "name": "Clips drop onto tracks → The playhead sweeps",
+    "frames": [
+     132,
+     216
+    ],
+    "moments": [
+     {
+      "id": "tracks-fill",
+      "seconds": 1.2,
+      "say": "",
+      "show": "Ember orange ground. Top-left '02' in cream Fraunces italic and 'On a real timeline' in sans. Centre: the three stacked #1b1917 tracks. An orange clip block drops in from the top and lands on track 1 on beat 1; on beat 2 two more clips (cream, brown) drop onto tracks 2 and 3 with a small squash; on beat 3 the stack tilts slightly and the orange clip springs off upward and out the right edge, carried into the next scene.",
+      "at": 0
+     },
+     {
+      "id": "playhead-run",
+      "seconds": 1.6,
+      "say": "",
+      "show": "Dark glow ground. The orange clip arrives from the left and snaps into a 22 px disc atop a cream 4 px playhead line. Top-left '03' and 'Play it back'. Behind it a ring of small cream halftone dots around the centre. On beat 1 the playhead starts at the left; across beats 2–3 it sweeps right and the dots it passes swell into a crest, the ring rotating slowly; on beat 4 it stops at the right edge and the dots settle.",
+      "at": 1.2
+     }
+    ],
+    "drawn": 84
+   },
+   {
+    "id": "circle-cut",
+    "type": "code",
+    "name": "Circle it, cut it",
+    "frames": [
+     216,
+     252
+    ],
+    "moments": [
+     {
+      "id": "circle-cut-act",
+      "seconds": 1.2,
+      "say": "",
+      "show": "Dark panel #1b1917 ground. Top-left '04' and 'Circle it. Cut it.'. Centre a cream frame card (16:9, 720 px wide, radius 14) with a flat scene inside (an orange sun over a brown hill). Beat 1: an orange marker circle draws itself around the sun in one stroke. Beat 2: the card drops onto a single track as a clip; a cream cut line slashes through it and the two halves jump apart 40 px. Beat 3: they settle, the gap clean.",
+      "at": 0
+     }
+    ],
+    "drawn": 36
+   },
+   {
+    "id": "looks-swap",
+    "type": "code",
+    "name": "Looks swap",
+    "frames": [
+     252,
+     288
+    ],
+    "moments": [
+     {
+      "id": "looks-click",
+      "seconds": 1.2,
+      "say": "",
+      "show": "Cream ground. Top-left '05' and 'Pick a look'. Centre: the same sun-over-hill frame card; under it three pills: 'Halftone', 'Risograph', 'VHS'. A cursor clicks one pill per beat, the clicked pill turning orange with a burst of small ticks: beat 1 Halftone, the card becomes orange ink dots on cream; beat 2 Risograph, two brown and orange inks out of register; beat 3 VHS, colour bleeding sideways with a torn bottom edge. The three looks are drawn in code on the card only.",
+      "at": 0
+     }
+    ],
+    "drawn": 36
+   },
+   {
+    "id": "cards-count",
+    "type": "code",
+    "name": "Cards fly in",
+    "frames": [
+     288,
+     312
+    ],
+    "moments": [
+     {
+      "id": "cards-in",
+      "seconds": 0.8,
+      "say": "",
+      "show": "Cream ground. Top-left '06' and 'Render'. On beat 1 three rounded cards fly in from the sides and lock into a row: an orange card counting 0 to 100% in Fraunces italic with 'Rendering' under it, a #1b1917 card with five cream bars growing, a cream card with a brown line drawing on. On beat 2 the counter hits 100% and the bars land.",
+      "at": 0
+     }
+    ],
+    "drawn": 24
+   },
+   {
+    "id": "icon-burst",
+    "type": "code",
+    "name": "Seven icons, one per beat → End card: Download for Mac",
+    "frames": [
+     312,
+     456
+    ],
+    "moments": [
+     {
+      "id": "icons",
+      "seconds": 1.6,
+      "say": "",
+      "show": "Seven tiny full-frame icon shots, hard cuts on every half-beat (0.2 s each, the seventh 0.4 s), each icon 360 px, flat, centred, popping in from 0.6×: 1 cream ground, #1b1917 playhead with an orange disc nudging right; 2 orange ground, cream waveform of nine rounded bars bouncing; 3 dark glow ground, cream film strip sliding left with one orange frame; 4 cream ground, #1b1917 scissors with orange handles snapping shut; 5 mid brown #8a5a3c ground, cream chat bubble with three orange dots pulsing; 6 orange ground, three #1b1917 track bars stacking down; 7 dark panel ground, a cream four-point sparkle bursts open, then on the last half-beat the orange disc shoots out of it and whips right with cream speed lines and a stretch, leaving across the cut.",
+      "at": 0
+     },
+     {
+      "id": "land",
+      "seconds": 0.8,
+      "say": "",
+      "show": "Dark glow ground. The orange disc enters from the left still stretched, slows, and on beat 1 drops onto the cream italic Fraunces 'Emile' (300 px, centred) as the accent of the É: it squashes once and morphs into an orange acute stroke. On beat 2 the letters jolt and begin to shrink and rise toward the end card's position.",
+      "at": 1.6
+     },
+     {
+      "id": "end",
+      "seconds": 2.4,
+      "say": "",
+      "show": "Dark glow ground with a soft orange halo (radial-gradient(circle, rgba(217,84,30,0.3), transparent 52%)) behind the centre. The wordmark settles at 150 px, cream with its orange accent, with the logo image assets/brand/Émile/logo-dark.png (180 px) to its left. Beat 1: under it, 'Make films with your AI.' in Fraunces 850 italic 72 px cream lands word by word. Beat 2: a small orange pill 'Download for Mac' (Fraunces 800, 28 px, white text, radius 99) pops in below with a small bounce; a cursor glides to it and presses it on beat 4, the pill dipping 2 px. Beats 5–6 hold.",
+      "at": 2.4
+     }
+    ],
+    "drawn": 144
+   },
+   {
+    "type": "sound",
+    "name": "End hit",
+    "frames": [
+     408,
+     456
+    ],
+    "sound": {
+     "file": "assets/sfx/boom-01.m4a",
+     "role": "effect"
+    },
+    "id": "cue-1-strong-end-1",
+    "track": -1
+   }
+  ],
+  "blends": [
+   {
+    "id": "emile/push",
+    "version": "^1",
+    "from": "tracks-drop",
+    "to": "circle-cut",
+    "in": 6,
+    "out": 6
+   },
+   {
+    "id": "emile/wipe",
+    "version": "^1",
+    "from": "circle-cut",
+    "to": "looks-swap",
+    "in": 6,
+    "out": 6
+   }
+  ],
+  "cues": [
+   {
+    "id": "cue-1",
+    "frame": 408,
+    "words": "片尾标语最后一个词 'AI.' 落定：音乐停在这里，一声重音余响托住片尾卡",
+    "by": "ai",
+    "recipe": "strong-end"
+   }
+  ]
+ },
+ "packs": [
+  {
+   "id": "emile/push",
+   "version": "^1",
+   "paid": false
+  },
+  {
+   "id": "emile/wipe",
+   "version": "^1",
+   "paid": false
+  },
+  {
+   "id": "emile/grain",
+   "version": "^1",
+   "paid": false
+  }
+ ]
+}
