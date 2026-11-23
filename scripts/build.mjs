@@ -55,6 +55,13 @@ function engine(...args) {
   }
 }
 
+// The words at the top of a prompt (between its two ---), one per line
+function top(file) {
+  if (!fs.existsSync(file)) return {}
+  const head = /^---\n([\s\S]*?)\n---/.exec(fs.readFileSync(file, 'utf8'))?.[1] ?? ''
+  return Object.fromEntries([...head.matchAll(/^(\w+): (.+)$/gm)].map(m => [m[1], m[2].trim()]))
+}
+
 const about = JSON.parse(fs.readFileSync(path.join(ROOT, 'projects.json'), 'utf8')).projects
 const folders = fs.readdirSync(path.join(ROOT, 'projects'), { withFileTypes: true }).filter(e => e.isDirectory()).map(e => e.name)
 for (const f of folders) if (!about.some(a => a.id === f)) faults.push(`projects/${f} has no words in projects.json`)
@@ -84,12 +91,15 @@ for (const a of about) {
     const { path: at, bytes, sha256 } = entry(ROOT, p)
     prompts[l] = { path: at, bytes, sha256 }
   }
+  // The Chinese words, from the top of its Chinese prompt: what Émile shows and searches in Chinese
+  const zh = top(path.join(ROOT, `prompts/${a.id}.zh.md`))
+  for (const k of ['title', 'kind', 'line']) if (!zh[k]) faults.push(`prompts/${a.id}.zh.md has no ${k}`)
   const last = Math.max(...film.timeline.clips.map(c => c.frames[1]))
   const shown = p => { const { sha256, bytes } = entry(dir, p); return { path: `projects/${a.id}/${p}`, bytes, sha256 } }
   projects.push({
     id: a.id, title: a.title, line: a.line, genre: a.genre, kind: a.kind,
     seconds: last * film.project.fps.den / film.project.fps.num, aspect: film.project.aspect,
-    preview: shown('preview.mp4'), poster: shown('preview.jpg'), beats: a.beats, prompts, files
+    preview: shown('preview.mp4'), poster: shown('preview.jpg'), beats: a.beats, zh: { title: zh.title, kind: zh.kind, line: zh.line }, prompts, files
   })
 }
 fs.rmSync(home, { recursive: true, force: true })
