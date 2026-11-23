@@ -1,0 +1,129 @@
+<style>
+  #ground { position: absolute; inset: 0;
+    background: radial-gradient(90% 70% at 50% 46%, #2d2823 0, #181513 48%, #100f0e 100%); }
+  #fx-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+  #ember-band { position: absolute; inset: 0;
+    background: #d9541e; filter: url(#blur-band); }
+  #title { position: absolute; left: 0; right: 0; top: 52%; margin: 0;
+    display: flex; justify-content: center; align-items: baseline; white-space: nowrap;
+    transform: translateY(-50%);
+    font: italic 900 500px/0.95 'Fraunces', serif; letter-spacing: -0.025em; color: #100f0e; }
+  #title span { display: inline-block; }
+  #word-say { transform-origin: 100% 85%; filter: url(#blur-say); visibility: hidden; }
+  #word-it { margin-left: 0.14em; transform-origin: 0% 85%; filter: url(#blur-it); visibility: hidden; }
+  /* The ember ball of the opening, now inked near-black as the full stop. */
+  #full-stop { width: 96px; height: 96px; margin-left: 0.05em; border-radius: 50%;
+    transform-origin: 50% 100%; filter: url(#blur-ball); visibility: hidden;
+    background: radial-gradient(circle at 34% 30%, rgba(247,244,238,0.28) 0, rgba(247,244,238,0) 36%),
+                radial-gradient(circle at 50% 50%, #100f0e 0, #100f0e 62%, #0b0a09 100%); }
+  .hud { position: absolute; font: 600 20px/1 -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+    text-transform: uppercase; letter-spacing: 0.12em; color: rgba(247,244,238,0.55); }
+  .hud.on-ember { color: rgba(16,15,14,0.55); }
+  #hud-chapter { left: 56px; top: 56px; }
+  #hud-brand { right: 56px; top: 56px; }
+  #hud-product { left: 56px; bottom: 120px; }
+  #hud-timecode { right: 56px; bottom: 120px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="ground"></div>
+<svg id="fx-defs" aria-hidden="true">
+  <filter id="blur-band" x="-20%" y="0" width="140%" height="100%"><feGaussianBlur id="blur-band-k" stdDeviation="0 0"/></filter>
+  <filter id="blur-say" x="-60%" y="-10%" width="220%" height="120%"><feGaussianBlur id="blur-say-k" stdDeviation="0 0"/></filter>
+  <filter id="blur-it" x="-80%" y="-10%" width="260%" height="120%"><feGaussianBlur id="blur-it-k" stdDeviation="0 0"/></filter>
+  <filter id="blur-ball" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur id="blur-ball-k" stdDeviation="0 0"/></filter>
+</svg>
+<div id="ember-band"></div>
+<h1 id="title"><span id="word-say">SAY</span><span id="word-it">IT</span><span id="full-stop"></span></h1>
+<div id="hud-chapter" class="hud">01 — Say</div>
+<div id="hud-brand" class="hud">Émile</div>
+<div id="hud-product" class="hud">Video editor for Mac</div>
+<div id="hud-timecode" class="hud">00:00:00</div>
+
+<script type="module">
+  // This clip starts at frame 45 of the film; the timecode counts the film's real time.
+  const START_FRAME = 45;
+  let W, beat, fps, el = {}, k = {}, huds;
+
+  const clamp = (v) => Math.max(0, Math.min(1, v));
+  const outCubic = (u) => 1 - (1 - u) ** 3;
+
+  // A slam: accelerates into place, ending exactly on its beat, then a damped squash.
+  function slam(t, tHit, dist, travel) {
+    const t0 = tHit - travel;
+    if (t < t0) return { x: dist, v: 0, hit: -1 };
+    if (t < tHit) {
+      const u = (t - t0) / travel;
+      return { x: dist * (1 - u * u), v: Math.abs(2 * dist * u / travel), hit: -1 };
+    }
+    return { x: 0, v: 0, hit: t - tHit };
+  }
+
+  export function setup(ctx) {
+    W = ctx.stage.width;
+    beat = (n) => (ctx.bpm ? ctx.beat(n) : n * 0.375);
+    fps = ctx.fps || 30;
+    for (const id of ['ember-band', 'word-say', 'word-it', 'full-stop', 'hud-timecode'])
+      el[id] = ctx.root.querySelector('#' + id);
+    for (const id of ['band', 'say', 'it', 'ball']) k[id] = ctx.root.querySelector(`#blur-${id}-k`);
+    huds = [...ctx.root.querySelectorAll('.hud')];
+  }
+
+  export function draw(t, ctx) {
+    // Ember band: already sliding in on frame one, covering the frame on the half beat.
+    // Its ease-out tail reads as done ~110 ms early, so the slide runs that much longer.
+    const bDur = beat(0.5) + 0.11;
+    const bu = clamp(t / bDur);
+    const bx = W * 0.82 * (1 - outCubic(bu));
+    const bv = bu < 1 ? 3 * W * 0.82 * (1 - bu) ** 2 / bDur : 0;
+    el['ember-band'].style.transform = `translateX(${bx}px)`;
+    k.band.setAttribute('stdDeviation', `${Math.min(60, bv / 220)} 0`);
+    const onEmber = t >= beat(0.5);
+    for (const h of huds) h.classList.toggle('on-ember', onEmber);
+
+    // SAY from the left, IT from the right: each hits its beat, then squashes against the stop.
+    // IT rests near the right edge, so it travels a short way inside the frame and its
+    // smear is scaled up to read as the same slam as SAY's long run.
+    const words = [['word-say', 'say', beat(1), -1700, 300], ['word-it', 'it', beat(2), 170, 50]];
+    for (const [id, kk, tHit, dist, smear] of words) {
+      const s = slam(t, tHit, dist, 0.16);
+      const e = el[id];
+      e.style.visibility = t >= tHit - 0.16 ? 'visible' : 'hidden';
+      let sx = 1, sy = 1, skew = 0;
+      // The squash dies out exactly a half beat after the hit, so the word rests on a beat.
+      // IT's short travel leaves the squash as its main motion, so it snaps out fast to keep
+      // the word landed on its beat rather than between beats.
+      const su = s.hit / (kk === 'it' ? 0.1 : beat(0.5));
+      if (s.hit >= 0 && su < 1) {
+        const d = (1 - su) ** 2 * Math.cos(su * Math.PI * 2.5);
+        sx = 1 - 0.14 * d; sy = 1 + 0.07 * d; skew = -6 * d * Math.sign(dist);
+      } else if (s.v > 0) {
+        sx = 1 + Math.min(0.25, s.v * (300 / smear) / 60000); sy = 1 / sx;
+      }
+      e.style.transform = `translateX(${s.x}px) skewX(${skew}deg) scale(${sx}, ${sy})`;
+      k[kk].setAttribute('stdDeviation', `${Math.min(kk === 'it' ? 40 : 70, s.v / smear)} 0`);
+    }
+
+    // The ball drops in as the full stop on beat 3; its squash wobbles out by beat 3.5.
+    const ball = el['full-stop'];
+    const tDrop = beat(3), tRest = beat(3) + 0.1, fall = 0.2;
+    ball.style.visibility = t >= tDrop - fall ? 'visible' : 'hidden';
+    let y = 0, vy = 0, sxb = 1, syb = 1;
+    if (t < tDrop) {
+      const u = clamp((t - (tDrop - fall)) / fall);
+      // Drops from just under the top edge so the ball stays inside the frame all the way down.
+      y = -560 * (1 - u * u); vy = 2 * 560 * u / fall;
+      syb = 1 + Math.min(0.5, vy / 12000); sxb = 1 / syb;
+    } else if (t < tRest) {
+      const u = (t - tDrop) / (tRest - tDrop);
+      const d = (1 - u) ** 3 * Math.cos(u * Math.PI * 1.5);
+      sxb = 1 + 0.45 * d; syb = 1 - 0.4 * d;
+    }
+    ball.style.transform = `translateY(${y}px) scale(${sxb}, ${syb})`;
+    k.ball.setAttribute('stdDeviation', `0 ${Math.min(30, vy / 400)}`);
+
+    const f = START_FRAME + Math.floor(t * fps + 1e-6);
+    const ff = f % fps, ss = Math.floor(f / fps) % 60, mm = Math.floor(f / fps / 60);
+    const z = (n) => String(n).padStart(2, '0');
+    el['hud-timecode'].textContent = `${z(mm)}:${z(ss)}:${z(ff)}`;
+  }
+</script>

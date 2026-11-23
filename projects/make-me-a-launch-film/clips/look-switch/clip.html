@@ -1,0 +1,233 @@
+<style>
+  #ground { position: absolute; inset: 0;
+    background: radial-gradient(90% 70% at 50% 46%, #2d2823 0, #181513 48%, #100f0e 100%); }
+  #ember-glow { position: absolute; inset: 0;
+    background: radial-gradient(circle 780px at 50% 52%, rgba(217,84,30,0.3), transparent 52%); opacity: 0.55; }
+  #picture-card { position: absolute; left: 50%; top: 52%; width: 1000px; height: 560px; margin: -280px 0 0 -500px;
+    border-radius: 31px; overflow: hidden; background: #1b1917;
+    box-shadow: 0 0 0 2px #3b352f, 0 30px 80px rgba(0,0,0,0.5); }
+  #picture-canvas { display: block; width: 1000px; height: 560px; }
+  #look-pill { position: absolute; left: 50%; top: 874px; height: 64px; padding: 0 34px 0 28px;
+    display: flex; align-items: center; gap: 16px; border-radius: 99px;
+    background: #1b1917; box-shadow: 0 0 0 2px #3b352f, 0 18px 40px rgba(0,0,0,0.45);
+    transform: translateX(-50%); white-space: nowrap; }
+  #look-dot { width: 16px; height: 16px; border-radius: 50%; background: #d9541e;
+    box-shadow: 0 0 14px rgba(217,84,30,0.6); }
+  #look-name { font: 500 28px/1 -apple-system, 'SF Pro Text', 'Inter', sans-serif; color: #f7f4ee; }
+  .hud { position: absolute; font: 600 20px/1 -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+    text-transform: uppercase; letter-spacing: 0.12em; color: rgba(247,244,238,0.55); }
+  #hud-chapter { left: 56px; top: 56px; }
+  #hud-brand { right: 56px; top: 56px; }
+  #hud-product { left: 56px; bottom: 120px; }
+  #hud-timecode { right: 56px; bottom: 120px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="ground"></div>
+<div id="ember-glow"></div>
+<div id="picture-card"><canvas id="picture-canvas" width="1000" height="560"></canvas></div>
+<div id="look-pill"><span id="look-dot"></span><span id="look-name">Clean</span></div>
+<div id="hud-chapter" class="hud">05 — Look</div>
+<div id="hud-brand" class="hud">Émile</div>
+<div id="hud-product" class="hud">Video editor for Mac</div>
+<div id="hud-timecode" class="hud">00:07:15</div>
+
+<script type="module">
+  const CW = 1000, CH = 560, HZ = 380;
+  const NAMES = ['Clean', 'Halftone', 'Risograph', 'Glow'];
+  // The clip sits at frame 225 of the film; the HUD counts the film's time, not the clip's.
+  const FILM_START_FRAME = 225;
+  let g, grain, arcDots, seams, nameEl, tc, fps, D, beat;
+
+  const expoOut = (u) => (u >= 1 ? 1 : 1 - Math.pow(2, -10 * u));
+  const clamp01 = (u) => Math.max(0, Math.min(1, u));
+
+  // The sun sinks the whole clip long, so the picture keeps moving under every look.
+  function sun(t) { return { x: 650, y: HZ + 8 + 46 * (t / D), r: 104 }; }
+
+  function drawClean(t, bloom) {
+    const s = sun(t);
+    const sky = g.createLinearGradient(0, 0, 0, HZ);
+    sky.addColorStop(0, '#100f0e'); sky.addColorStop(0.65, '#221e1b'); sky.addColorStop(1, '#2d2823');
+    g.fillStyle = sky; g.fillRect(0, 0, CW, HZ);
+    const warm = g.createRadialGradient(s.x, HZ, 0, s.x, HZ, 380);
+    warm.addColorStop(0, 'rgba(217,84,30,0.28)'); warm.addColorStop(1, 'rgba(217,84,30,0)');
+    g.fillStyle = warm; g.fillRect(0, 0, CW, HZ);
+
+    g.save(); g.beginPath(); g.rect(0, 0, CW, HZ); g.clip();
+    const body = g.createRadialGradient(s.x - 30, s.y - 40, 10, s.x, s.y, s.r);
+    body.addColorStop(0, '#e8774a'); body.addColorStop(0.7, '#d9541e'); body.addColorStop(1, '#a83f14');
+    g.fillStyle = body; g.beginPath(); g.arc(s.x, s.y, s.r, 0, Math.PI * 2); g.fill();
+    g.restore();
+
+    g.fillStyle = '#100f0e'; g.fillRect(0, HZ, CW, CH - HZ);
+    // The sun's reflection: ember streaks narrowing as they fall away from the horizon.
+    for (let i = 0; i < 6; i++) {
+      const y = HZ + 16 + i * 22, w = (s.r * 1.6) * (1 - i * 0.14);
+      g.fillStyle = `rgba(217,84,30,${0.42 - i * 0.06})`;
+      g.beginPath(); g.roundRect(s.x - w / 2, y, w, 6, 3); g.fill();
+    }
+    g.fillStyle = 'rgba(247,244,238,0.92)'; g.fillRect(0, HZ - 1.5, CW, 3);
+    g.fillStyle = 'rgba(247,244,238,0.7)';
+    for (const p of arcDots) { g.beginPath(); g.arc(p.x, p.y, 4, 0, Math.PI * 2); g.fill(); }
+
+    if (bloom > 0) {
+      g.save(); g.globalCompositeOperation = 'lighter';
+      const R = 140 + 420 * bloom;
+      const b1 = g.createRadialGradient(s.x, s.y, 0, s.x, s.y, R);
+      b1.addColorStop(0, `rgba(217,84,30,${0.7 * bloom})`); b1.addColorStop(0.45, `rgba(217,84,30,${0.25 * bloom})`);
+      b1.addColorStop(1, 'rgba(217,84,30,0)');
+      g.fillStyle = b1; g.fillRect(0, 0, CW, CH);
+      const b2 = g.createRadialGradient(s.x, Math.min(s.y, HZ), 0, s.x, Math.min(s.y, HZ), 150);
+      b2.addColorStop(0, `rgba(247,244,238,${0.4 * bloom})`); b2.addColorStop(1, 'rgba(247,244,238,0)');
+      g.fillStyle = b2; g.fillRect(0, 0, CW, CH);
+      // The horizon catches the bloom and flares sideways.
+      const fl = g.createLinearGradient(s.x - 460, 0, s.x + 460, 0);
+      fl.addColorStop(0, 'rgba(232,119,74,0)'); fl.addColorStop(0.5, `rgba(232,119,74,${0.8 * bloom})`);
+      fl.addColorStop(1, 'rgba(232,119,74,0)');
+      g.fillStyle = fl; g.fillRect(0, HZ - 4, CW, 8);
+      g.restore();
+    }
+  }
+
+  // How much ink the scene asks for at a point: dark sky and ground heavy, sun and lines bare paper.
+  function ink(x, y, s) {
+    if (Math.abs(y - HZ) < 5) return 0;
+    if (y > HZ) {
+      const dx = Math.abs(x - s.x);
+      const streak = y < HZ + 140 && dx < s.r * (0.8 - (y - HZ) / 140 * 0.4) && ((y - HZ - 16) % 22) < 8;
+      return streak ? 0.2 : 0.8;
+    }
+    const d = Math.hypot(x - s.x, y - s.y);
+    if (d < s.r) return 0.12 + 0.1 * (d / s.r);
+    const halo = Math.exp(-(((d - s.r) / 140) ** 2));
+    return clamp01(0.78 - 0.38 * (y / HZ) - 0.5 * halo);
+  }
+
+  function drawHalftone(t) {
+    const s = sun(t);
+    g.fillStyle = '#f7f4ee'; g.fillRect(0, 0, CW, CH);
+    g.fillStyle = '#100f0e';
+    const cell = 14;
+    for (let row = 0; row * cell * 0.866 < CH + cell; row++) {
+      const y = row * cell * 0.866;
+      const off = row % 2 ? cell / 2 : 0;
+      for (let x = off; x < CW + cell; x += cell) {
+        const r = ink(x, y, s) * cell * 0.5;
+        if (r < 0.6) continue;
+        g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+      }
+    }
+    g.fillStyle = '#f7f4ee';
+    for (const p of arcDots) { g.beginPath(); g.arc(p.x, p.y, 6, 0, Math.PI * 2); g.fill(); }
+  }
+
+  function drawRiso(t) {
+    const s = sun(t);
+    g.fillStyle = '#f7f4ee'; g.fillRect(0, 0, CW, CH);
+    g.save(); g.globalCompositeOperation = 'multiply';
+    // Brown plate: sky thinning toward the horizon, the sun knocked out, solid ground.
+    g.save(); g.translate(-5, 3);
+    const sky = g.createLinearGradient(0, 0, 0, HZ);
+    sky.addColorStop(0, 'rgba(45,40,35,0.7)'); sky.addColorStop(1, 'rgba(45,40,35,0.12)');
+    g.save(); g.beginPath(); g.rect(0, 0, CW, HZ - 5); g.clip();
+    g.fillStyle = sky;
+    g.beginPath(); g.rect(0, 0, CW, HZ - 5); g.arc(s.x, s.y, s.r + 6, 0, Math.PI * 2, true); g.fill('evenodd');
+    g.restore();
+    g.fillStyle = 'rgba(45,40,35,0.82)'; g.fillRect(0, HZ + 5, CW, CH);
+    g.restore();
+    // Ember plate, out of register the other way.
+    g.save(); g.translate(7, -4);
+    g.save(); g.beginPath(); g.rect(0, 0, CW, HZ - 5); g.clip();
+    g.fillStyle = '#d9541e'; g.beginPath(); g.arc(s.x, s.y, s.r, 0, Math.PI * 2); g.fill();
+    g.restore();
+    for (let i = 0; i < 6; i++) {
+      const y = HZ + 16 + i * 22, w = (s.r * 1.6) * (1 - i * 0.14);
+      g.fillStyle = '#d9541e'; g.beginPath(); g.roundRect(s.x - w / 2, y, w, 6, 3); g.fill();
+    }
+    for (const p of arcDots) { g.beginPath(); g.arc(p.x, p.y, 5, 0, Math.PI * 2); g.fill(); }
+    g.restore();
+    g.restore();
+    g.drawImage(grain, 0, 0);
+  }
+
+  function drawLook(i, t) {
+    if (i === 0) drawClean(t, 0);
+    else if (i === 1) drawHalftone(t);
+    else if (i === 2) drawRiso(t);
+    else drawClean(t, 0.55 + 0.45 * expoOut(clamp01((t - seams[2].a) / 0.45)));
+  }
+
+  export function setup(ctx) {
+    D = ctx.d; fps = ctx.fps || 30;
+    beat = (n) => (ctx.bpm ? ctx.beat(n) : n * 0.375);
+    g = ctx.root.querySelector('#picture-canvas').getContext('2d');
+    nameEl = ctx.root.querySelector('#look-name');
+    tc = ctx.root.querySelector('#hud-timecode');
+
+    // The ball's hop, kept as a dotted arc across the sky.
+    arcDots = [];
+    let prev = null, acc = 0;
+    for (let x = 60; x <= 600; x += 1) {
+      const u = (x - 60) / 540;
+      const p = { x, y: HZ - 10 - 4 * 260 * u * (1 - u) };
+      if (prev) acc += Math.hypot(p.x - prev.x, p.y - prev.y);
+      if (!prev || acc >= 26) { arcDots.push(p); acc = 0; }
+      prev = p;
+    }
+
+    // Riso paper texture: ink dropouts and a few stray specks, the same every frame.
+    grain = document.createElement('canvas'); grain.width = CW; grain.height = CH;
+    const gg = grain.getContext('2d'), next = ctx.rng(5);
+    for (let i = 0; i < 4200; i++) {
+      gg.fillStyle = next() < 0.8 ? `rgba(247,244,238,${0.25 + 0.4 * next()})` : `rgba(45,40,35,${0.2 + 0.3 * next()})`;
+      gg.fillRect(next() * CW, next() * CH, 1 + next() * 2, 1 + next() * 2);
+    }
+
+    // Each seam sets off just before its beat and lands with an expo-out.
+    seams = [1, 2, 3].map((k) => ({ a: beat(k) - 0.07, d: 0.25, beatAt: beat(k) }));
+
+    ctx.root.querySelector('#picture-card').animate(
+      [{ transform: 'scale(1)' }, { transform: 'scale(1.035)' }],
+      { duration: D * 1000, easing: 'linear', fill: 'both' });
+    const pill = ctx.root.querySelector('#look-pill');
+    for (const s of seams) {
+      pill.animate(
+        [{ transform: 'translateX(-50%) scale(0.86, 1.12)' }, { transform: 'translateX(-50%) scale(1)' }],
+        { delay: s.a * 1000, duration: 250, easing: 'cubic-bezier(.2,1.4,.3,1)', fill: 'forwards' });
+    }
+  }
+
+  export function draw(t) {
+    let k = 0;
+    for (let i = 0; i < seams.length; i++) if (t >= seams[i].a) k = i + 1;
+    const p = k ? expoOut(clamp01((t - seams[k - 1].a) / seams[k - 1].d)) : 1;
+
+    g.clearRect(0, 0, CW, CH);
+    if (p >= 1) {
+      drawLook(k, t);
+    } else {
+      const sx = p * CW;
+      drawLook(k - 1, t);
+      g.save(); g.beginPath(); g.rect(0, 0, sx, CH); g.clip(); drawLook(k, t); g.restore();
+      // The seam: a cream blade with an ember edge and a smear behind it while it is fast.
+      const v = 1 - p;
+      const smear = 40 + 220 * v;
+      const sm = g.createLinearGradient(sx - smear, 0, sx, 0);
+      sm.addColorStop(0, 'rgba(247,244,238,0)'); sm.addColorStop(1, `rgba(247,244,238,${0.15 + 0.35 * v})`);
+      g.fillStyle = sm; g.fillRect(sx - smear, 0, smear, CH);
+      const eg = g.createLinearGradient(sx - 24, 0, sx + 24, 0);
+      eg.addColorStop(0, 'rgba(217,84,30,0)'); eg.addColorStop(0.5, 'rgba(217,84,30,0.8)'); eg.addColorStop(1, 'rgba(217,84,30,0)');
+      g.fillStyle = eg; g.fillRect(sx - 24, 0, 48, CH);
+      g.fillStyle = '#f7f4ee'; g.fillRect(sx - 2, 0, 4, CH);
+    }
+
+    // The name changes on the beat itself.
+    let n = 0;
+    for (let i = 0; i < seams.length; i++) if (t >= seams[i].beatAt - 1e-6) n = i + 1;
+    if (nameEl.textContent !== NAMES[n]) nameEl.textContent = NAMES[n];
+
+    const f = FILM_START_FRAME + Math.floor(t * fps + 1e-6);
+    const z = (x) => String(x).padStart(2, '0');
+    tc.textContent = `${z(Math.floor(f / fps / 60))}:${z(Math.floor(f / fps) % 60)}:${z(f % fps)}`;
+  }
+</script>

@@ -1,0 +1,171 @@
+<style>
+  .flash { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: none; }
+  #flash-rings { display: block; }
+</style>
+
+<canvas id="flash-rings" class="flash"></canvas>
+<canvas id="flash-sun" class="flash"></canvas>
+<canvas id="flash-eye" class="flash"></canvas>
+<canvas id="flash-halftone" class="flash"></canvas>
+<canvas id="flash-planet" class="flash"></canvas>
+<canvas id="flash-reel" class="flash"></canvas>
+
+<script type="module">
+  const INK = '#100f0e', CREAM = '#f7f4ee', EMBER = '#d9541e', EMBER_D = '#a83f14',
+    PANEL = '#1b1917', GLOW = '#2d2823', RING = '#3b352f';
+  let W, H, CX, CY, S, cvs, gs, cuts;
+
+  function darkGround(g) {
+    const r = g.createRadialGradient(CX, H * 0.46, 0, CX, H * 0.46, W * 0.6);
+    r.addColorStop(0, GLOW); r.addColorStop(0.48, '#181513'); r.addColorStop(1, INK);
+    g.fillStyle = r; g.fillRect(0, 0, W, H);
+  }
+  function emberBall(g, x, y, r) {
+    const b = g.createRadialGradient(x, y, 0, x, y, r);
+    b.addColorStop(0, EMBER); b.addColorStop(0.62, EMBER); b.addColorStop(1, EMBER_D);
+    g.fillStyle = b; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+    const h = g.createRadialGradient(x - r * 0.32, y - r * 0.4, 0, x - r * 0.32, y - r * 0.4, r * 0.68);
+    h.addColorStop(0, 'rgba(247,244,238,0.55)'); h.addColorStop(1, 'rgba(247,244,238,0)');
+    g.fillStyle = h; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+  }
+  const backOut = (u) => { u = Math.min(1, Math.max(0, u)); const c = 1.9; return 1 + (c + 1) * (u - 1) ** 3 + c * (u - 1) ** 2; };
+  const expoOut = (u) => (u >= 1 ? 1 : 1 - Math.pow(2, -10 * Math.max(0, u)));
+
+  // 1: rings flow outward from the target, continuously.
+  function rings(g, lt) {
+    g.fillStyle = CREAM; g.fillRect(0, 0, W, H);
+    const gap = 96 * S, off = (lt * 520 * S) % gap;
+    g.strokeStyle = INK; g.lineWidth = 30 * S;
+    for (let r = 150 * S + off - gap; r < W; r += gap) {
+      if (r < 120 * S) continue;
+      g.beginPath(); g.arc(CX, CY, r, 0, Math.PI * 2); g.stroke();
+    }
+    emberBall(g, CX, CY, 78 * S * (0.85 + 0.15 * backOut(lt / 0.12)));
+  }
+
+  // 2: spiky sun, rays spinning fast.
+  function sun(g, lt) {
+    g.fillStyle = EMBER; g.fillRect(0, 0, W, H);
+    const n = 28, rot = lt * 3.2;
+    g.fillStyle = INK; g.beginPath();
+    for (let i = 0; i < n * 2; i++) {
+      const a = rot + (i * Math.PI) / n;
+      const r = i % 2 === 0 ? (i % 4 === 0 ? 400 : 300) * S : 170 * S;
+      const x = CX + Math.cos(a) * r, y = CY + Math.sin(a) * r;
+      i ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.closePath(); g.fill();
+    g.beginPath(); g.arc(CX, CY, 180 * S, 0, Math.PI * 2); g.fill();
+    g.fillStyle = CREAM; g.beginPath(); g.arc(CX, CY, 128 * S, 0, Math.PI * 2); g.fill();
+  }
+
+  // 3: the eye's lids open with a back-out snap.
+  function eye(g, lt) {
+    g.fillStyle = GLOW; g.fillRect(0, 0, W, H);
+    const open = Math.max(0.04, backOut(lt / 0.13));
+    const w = 470 * S, h = 230 * S * open;
+    const path = () => {
+      g.beginPath();
+      g.moveTo(CX - w, CY);
+      g.quadraticCurveTo(CX, CY - h * 2, CX + w, CY);
+      g.quadraticCurveTo(CX, CY + h * 2, CX - w, CY);
+      g.closePath();
+    };
+    g.save(); path(); g.fillStyle = CREAM; g.fill(); g.clip();
+    emberBall(g, CX, CY, 165 * S);
+    g.fillStyle = INK; g.beginPath(); g.arc(CX, CY, 74 * S, 0, Math.PI * 2); g.fill();
+    g.fillStyle = CREAM; g.beginPath(); g.arc(CX + 40 * S, CY - 44 * S, 22 * S, 0, Math.PI * 2); g.fill();
+    g.restore();
+    path(); g.strokeStyle = INK; g.lineWidth = 12 * S; g.stroke();
+  }
+
+  // 4: halftone dots swell toward the cream centre.
+  function halftone(g, lt) {
+    g.fillStyle = EMBER; g.fillRect(0, 0, W, H);
+    const grow = 0.45 + 0.55 * expoOut(lt / 0.18), step = 64 * S, maxD = Math.hypot(W, H) / 2;
+    g.fillStyle = INK;
+    for (let y = CY % step - step; y < H + step; y += step) {
+      for (let x = CX % step - step; x < W + step; x += step) {
+        const d = Math.hypot(x - CX, y - CY);
+        if (d < 150 * S) continue;
+        const r = step * 0.46 * (1 - d / maxD) ** 1.4 * grow;
+        if (r < 1) continue;
+        g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+      }
+    }
+    g.fillStyle = CREAM; g.beginPath(); g.arc(CX, CY, 104 * S * (0.8 + 0.2 * backOut(lt / 0.12)), 0, Math.PI * 2); g.fill();
+  }
+
+  // 5: planet with two ember moons gliding on tilted orbits.
+  function planet(g, lt) {
+    darkGround(g);
+    const orbits = [
+      { a: 470, b: 120, tilt: -0.22, ph: 0.4, sp: 4.2, r: 30 },
+      { a: 330, b: 200, tilt: 0.5, ph: 3.6, sp: -5.2, r: 22 },
+    ];
+    const moon = (o) => {
+      const th = o.ph + lt * o.sp, ex = Math.cos(th) * o.a * S, ey = Math.sin(th) * o.b * S;
+      return { x: CX + ex * Math.cos(o.tilt) - ey * Math.sin(o.tilt), y: CY + ex * Math.sin(o.tilt) + ey * Math.cos(o.tilt), front: Math.sin(th) > 0 };
+    };
+    g.strokeStyle = 'rgba(247,244,238,0.7)'; g.lineWidth = 3 * S;
+    for (const o of orbits) { g.beginPath(); g.ellipse(CX, CY, o.a * S, o.b * S, o.tilt, 0, Math.PI * 2); g.stroke(); }
+    const ms = orbits.map(moon);
+    ms.forEach((m, i) => { if (!m.front) emberBall(g, m.x, m.y, orbits[i].r * S); });
+    const pr = 170 * S;
+    const p = g.createRadialGradient(CX - pr * 0.35, CY - pr * 0.4, 0, CX, CY, pr);
+    p.addColorStop(0, CREAM); p.addColorStop(0.7, CREAM); p.addColorStop(1, '#e9e3d8');
+    g.fillStyle = p; g.beginPath(); g.arc(CX, CY, pr, 0, Math.PI * 2); g.fill();
+    ms.forEach((m, i) => { if (m.front) emberBall(g, m.x, m.y, orbits[i].r * S); });
+  }
+
+  // 6: film reel spinning fast, a faint rotational smear behind it.
+  function reel(g, lt) {
+    darkGround(g);
+    const R = 300 * S;
+    const one = (rot, alpha) => {
+      g.save(); g.globalAlpha = alpha; g.translate(CX, CY); g.rotate(rot);
+      g.beginPath(); g.arc(0, 0, R, 0, Math.PI * 2);
+      for (let i = 0; i < 5; i++) {
+        const a = (i * Math.PI * 2) / 5 - Math.PI / 2, hx = Math.cos(a) * R * 0.55, hy = Math.sin(a) * R * 0.55;
+        g.moveTo(hx + R * 0.22, hy); g.arc(hx, hy, R * 0.22, 0, Math.PI * 2, true);
+      }
+      g.fillStyle = PANEL; g.fill('evenodd');
+      if (alpha === 1) {
+        // Ring the rim and the holes so the dark reel reads against the dark ground.
+        g.lineWidth = 8 * S; g.strokeStyle = RING;
+        g.beginPath(); g.arc(0, 0, R, 0, Math.PI * 2); g.stroke();
+        g.lineWidth = 6 * S;
+        for (let i = 0; i < 5; i++) {
+          const a = (i * Math.PI * 2) / 5 - Math.PI / 2;
+          g.beginPath(); g.arc(Math.cos(a) * R * 0.55, Math.sin(a) * R * 0.55, R * 0.22, 0, Math.PI * 2); g.stroke();
+        }
+        g.strokeStyle = 'rgba(247,244,238,0.35)'; g.lineWidth = 3 * S;
+        g.beginPath(); g.arc(0, 0, R * 0.9, 0, Math.PI * 2); g.stroke();
+      }
+      g.restore();
+    };
+    const rot = lt * 11;
+    for (let k = 3; k >= 1; k--) one(rot - k * 0.07, 0.12);
+    one(rot, 1);
+    emberBall(g, CX, CY, 62 * S);
+  }
+
+  const painters = [rings, sun, eye, halftone, planet, reel];
+
+  export function setup(ctx) {
+    W = ctx.stage.width; H = ctx.stage.height; S = W / 1920;
+    CX = W * 0.5; CY = H * 0.52;
+    const half = (i) => (ctx.bpm ? ctx.beat(i / 2) : i * 0.1875);
+    cuts = [0, 1, 2, 3, 4, 5].map(half);
+    cvs = ['rings', 'sun', 'eye', 'halftone', 'planet', 'reel'].map((n) => ctx.root.querySelector('#flash-' + n));
+    gs = cvs.map((c) => { c.width = W; c.height = H; return c.getContext('2d'); });
+  }
+
+  export function draw(t) {
+    // A hard cut on every half beat: exactly one flash shows.
+    let k = 0;
+    for (let i = 0; i < cuts.length; i++) if (t + 1e-6 >= cuts[i]) k = i;
+    cvs.forEach((c, i) => { c.style.display = i === k ? 'block' : 'none'; });
+    painters[k](gs[k], t - cuts[k]);
+  }
+</script>

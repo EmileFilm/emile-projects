@@ -1,0 +1,117 @@
+<style>
+  #ground { position: absolute; inset: 0;
+    background: radial-gradient(90% 70% at 50% 46%, #2d2823 0, #181513 48%, #100f0e 100%); }
+  #ember-glow { position: absolute; inset: 0;
+    background: radial-gradient(circle 700px at 50% 52%, rgba(217,84,30,0.3), transparent 52%); }
+  #timeline-stack { position: absolute; left: 50%; top: 52%; width: 0; height: 0; perspective: 2200px; }
+  #stack-rig { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; }
+  .layer { position: absolute; left: -800px; top: 0; width: 1600px; height: 96px; margin-top: -48px;
+    background: #1b1917; border-radius: 12px; box-sizing: border-box; box-shadow: 0 0 0 2px #3b352f inset;
+    transform-style: preserve-3d; }
+  .clip { position: absolute; top: 50%; height: 96px; margin-top: -48px; border-radius: 12px;
+    font: 600 28px/96px -apple-system, 'SF Pro Text', 'Inter', sans-serif; padding-left: 24px; box-sizing: border-box;
+    white-space: nowrap; overflow: hidden; }
+  .clip.cream { background: #f7f4ee; color: #100f0e; }
+  .clip.brown { background: #2d2823; color: #f7f4ee; box-shadow: 0 0 0 2px #3b352f inset; }
+  .clip.ember { background: #d9541e; color: #100f0e; box-shadow: 0 0 36px rgba(217,84,30,0.55); }
+  /* The tag sits on the layer's left end, in the clear strip before its first clip. */
+  .tag { position: absolute; left: 32px; top: 50%; margin-top: -15px; opacity: 0;
+    font: 700 30px/30px -apple-system, 'SF Pro Text', 'Inter', sans-serif; text-transform: uppercase;
+    letter-spacing: 0.12em; color: rgba(247,244,238,0.85); white-space: nowrap; }
+  #picture-glow { position: absolute; left: 820px; top: 50%; width: 760px; height: 420px; margin: -210px 0 0 -380px;
+    background: radial-gradient(closest-side, rgba(217,84,30,0.55), rgba(217,84,30,0.18) 55%, transparent);
+    border-radius: 50%; opacity: 0; }
+  .hud { position: absolute; font: 600 20px/1 -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+    text-transform: uppercase; letter-spacing: 0.12em; color: rgba(247,244,238,0.55); }
+  #hud-chapter { left: 56px; top: 56px; }
+  #hud-brand { right: 56px; top: 56px; }
+  #hud-product { left: 56px; bottom: 120px; }
+  #hud-timecode { right: 56px; bottom: 120px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="ground"></div>
+<div id="ember-glow"></div>
+<div id="timeline-stack">
+  <div id="stack-rig">
+    <div id="layer-picture" class="layer">
+      <div id="picture-glow"></div>
+      <div id="tag-picture" class="tag">Picture</div>
+      <div id="clip-picture-1" class="clip brown" style="left:210px;width:400px">Shot 1</div>
+      <div id="clip-picture-2" class="clip cream" style="left:624px;width:500px">Shot 2</div>
+      <div id="clip-picture-3" class="clip brown" style="left:1138px;width:438px">Shot 3</div>
+    </div>
+    <div id="layer-words" class="layer">
+      <div id="tag-words" class="tag">Words</div>
+      <div id="clip-words-1" class="clip cream" style="left:260px;width:330px">Make me</div>
+      <div id="clip-words-2" class="clip ember" style="left:660px;width:320px">launch</div>
+      <div id="clip-words-3" class="clip cream" style="left:1060px;width:300px">film</div>
+    </div>
+    <div id="layer-look" class="layer">
+      <div id="tag-look" class="tag">Look</div>
+      <div id="clip-look-1" class="clip brown" style="left:210px;width:640px">Grain</div>
+      <div id="clip-look-2" class="clip cream" style="left:864px;width:712px">Glow</div>
+    </div>
+  </div>
+</div>
+<div id="hud-chapter" class="hud">04 — Layers</div>
+<div id="hud-brand" class="hud">Émile</div>
+<div id="hud-product" class="hud">Video editor for Mac</div>
+<div id="hud-timecode" class="hud">00:00:00</div>
+
+<script type="module">
+  // This clip sits at frame 180 of the film; the timecode counts the film's time, not the clip's.
+  const FILM_START_FRAME = 180;
+  let beat, fps, rig, glow, pglow, tc, layers;
+
+  const clamp = (x) => Math.max(0, Math.min(1, x));
+  const expoOut = (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x));
+  const backOut = (x) => { const c = 1.9; x -= 1; return 1 + (c + 1) * x * x * x + c * x * x; };
+  const lerp = (a, b, k) => a + (b - a) * k;
+
+  export function setup(ctx) {
+    beat = (n) => (ctx.bpm ? ctx.beat(n) : n * 0.375);
+    fps = ctx.fps || 30;
+    rig = ctx.root.querySelector('#stack-rig');
+    pglow = ctx.root.querySelector('#picture-glow');
+    tc = ctx.root.querySelector('#hud-timecode');
+    // Flat rows match the previous scene's tracks (96 px bars, 14 px apart); lifted, they share a centre and part in depth.
+    layers = [
+      { el: ctx.root.querySelector('#layer-look'), tag: ctx.root.querySelector('#tag-look'), y0: -110, z1: 260, hit: beat(3) },
+      { el: ctx.root.querySelector('#layer-words'), tag: ctx.root.querySelector('#tag-words'), y0: 0, z1: 0, hit: beat(2.5) },
+      { el: ctx.root.querySelector('#layer-picture'), tag: ctx.root.querySelector('#tag-picture'), y0: 110, z1: -260, hit: beat(2) },
+    ];
+  }
+
+  export function draw(t, ctx) {
+    // The flat tracks of the previous scene hold, then tilt back into perspective, settled on the half beat; the stack keeps turning slowly.
+    const tilt = expoOut(clamp((t - (beat(0.5) - 0.07)) / 0.25));
+    const rx = 55 * tilt;
+    const rz = -20 * tilt - 9 * (t / ctx.d);
+    const sc = lerp(1, 0.86, tilt) + 0.04 * (t / ctx.d);
+    rig.style.transform = `translateY(${-50 * tilt}px) rotateX(${rx}deg) rotateZ(${rz}deg) scale(${sc})`;
+
+    // Each track lifts into a floating plate: back-out, 0.25 s, settled on its beat.
+    for (const L of layers) {
+      // Starts early enough that the back-out overshoot has settled by its beat.
+      const k = clamp((t - (L.hit - 0.15)) / 0.22);
+      const p = k > 0 ? backOut(k) : 0;
+      const y = lerp(L.y0, 0, p);
+      const z = lerp(0, L.z1, p);
+      const h = lerp(96, 300, p);
+      L.el.style.transform = `translate3d(0, ${y}px, ${z}px)`;
+      L.el.style.height = `${h}px`;
+      L.el.style.marginTop = `${-h / 2}px`;
+      L.el.style.borderRadius = `${lerp(12, 31, clamp(p))}px`;
+      L.el.style.boxShadow = `0 0 0 2px #3b352f inset, 0 ${30 * clamp(p)}px ${80 * clamp(p)}px rgba(0,0,0,${0.5 * clamp(p)})`;
+      L.tag.style.opacity = clamp(k / 0.7);
+    }
+    // The ember clip on WORDS lights the plate under it as the two part.
+    const wordsLift = clamp((t - (beat(2.5) - 0.15)) / 0.22);
+    pglow.style.opacity = wordsLift;
+
+    const f = FILM_START_FRAME + Math.floor(t * fps + 1e-6);
+    const ff = f % fps, ss = Math.floor(f / fps) % 60, mm = Math.floor(f / fps / 60);
+    const zz = (n) => String(n).padStart(2, '0');
+    tc.textContent = `${zz(mm)}:${zz(ss)}:${zz(ff)}`;
+  }
+</script>

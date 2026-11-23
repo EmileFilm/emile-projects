@@ -131,6 +131,18 @@
         "hit": 0.2,
         "hold": 0.84
       }
+    },
+    {
+      "id": "make-me-a-launch-film",
+      "title": "Make me a launch film",
+      "genre": "Motion design",
+      "kind": "Motion reel",
+      "line": "A typed line that turns into clips on a timeline, cut on the beat at 160 BPM: for an AI product's launch reel.",
+      "beats": {
+        "in": 0.1,
+        "hit": 0.2,
+        "hold": 0.86
+      }
     }
   ]
 }

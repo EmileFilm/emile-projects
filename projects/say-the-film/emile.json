@@ -23,23 +23,6 @@
  "timeline": {
   "clips": [
    {
-    "id": "music",
-    "type": "sound",
-    "name": "Music",
-    "frames": [
-     0,
-     408
-    ],
-    "track": -1,
-    "sound": {
-     "file": "assets/music/upbeat-modern-electronic-bright--14515641.m4a",
-     "in": 0.075,
-     "role": "music",
-     "fade_in": 9,
-     "fade_out": 2
-    }
-   },
-   {
     "id": "bounce",
     "type": "code",
     "name": "Orange ball bounce",
@@ -229,20 +212,6 @@
      }
     ],
     "drawn": 144
-   },
-   {
-    "type": "sound",
-    "name": "End hit",
-    "frames": [
-     408,
-     456
-    ],
-    "sound": {
-     "file": "assets/sfx/boom-01.m4a",
-     "role": "effect"
-    },
-    "id": "cue-1-strong-end-1",
-    "track": -1
    }
   ],
   "blends": [

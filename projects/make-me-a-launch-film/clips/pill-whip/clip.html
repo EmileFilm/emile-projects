@@ -1,0 +1,213 @@
+<style>
+  #ground { position: absolute; inset: 0;
+    background: radial-gradient(90% 70% at 50% 46%, #2d2823 0, #181513 48%, #100f0e 100%); }
+  #ember-glow { position: absolute; inset: 0;
+    background: radial-gradient(circle 760px at 50% 42%, rgba(217,84,30,0.3), transparent 100%); opacity: 0; }
+  #ground-ember { position: absolute; inset: 0; background: #d9541e; }
+  #speed-lines { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+  #logo-row { position: absolute; left: 0; right: 0; top: 262px; height: 220px;
+    display: flex; align-items: center; justify-content: center; gap: 44px; }
+  #logo { width: 220px; height: 220px; display: block; transform: scale(0); }
+  #wordmark { font: italic 500 150px/1 'Fraunces', serif; letter-spacing: -0.025em; color: #f7f4ee;
+    opacity: 0; padding-right: 0.08em; }
+  #tagline { position: absolute; left: 0; right: 0; top: 556px; text-align: center; white-space: nowrap;
+    font: italic 900 110px/0.95 'Fraunces', serif; letter-spacing: -0.025em; color: #f7f4ee; }
+  #tagline .word { display: inline-block; opacity: 0; margin-right: 0.22em; }
+  #tagline #word-5 { margin-right: 0.04em; }
+  #tagline-stop { display: inline-block; width: 30px; height: 30px; }
+  #rule { position: absolute; left: 50%; top: 706px; height: 3px; background: #f7f4ee;
+    transform-origin: left center; transform: scaleX(0); }
+  #subline { position: absolute; left: 0; right: 0; top: 738px; text-align: center;
+    font: 500 34px/1.2 -apple-system, 'SF Pro Text', 'Inter', sans-serif; color: rgba(247,244,238,0.7); opacity: 0; }
+  #ember-dot { position: absolute; left: 0; top: 0; width: 64px; height: 64px; border-radius: 99px; overflow: hidden;
+    background: radial-gradient(circle at 34% 30%, rgba(247,244,238,0.55) 0, rgba(247,244,238,0) 34%),
+                radial-gradient(circle at 50% 50%, #d9541e 0, #d9541e 62%, #a83f14 100%);
+    box-shadow: 0 0 28px rgba(217,84,30,0.45); }
+  #ember-dot-cream { position: absolute; inset: 0; background: #f7f4ee; }
+  .hud { position: absolute; font: 600 20px/1 -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+    text-transform: uppercase; letter-spacing: 0.12em; color: rgba(16,15,14,0.55); }
+  .hud.on-dark { color: rgba(247,244,238,0.55); }
+  #hud-chapter { left: 56px; top: 56px; }
+  #hud-brand { right: 56px; top: 56px; }
+  #hud-product { left: 56px; bottom: 120px; }
+  #hud-timecode { right: 56px; bottom: 120px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="ground"></div>
+<div id="ember-glow"></div>
+<div id="ground-ember"></div>
+<canvas id="speed-lines"></canvas>
+<div id="logo-row"><img id="logo" alt="Émile"><span id="wordmark">Émile</span></div>
+<div id="tagline"><span id="word-1" class="word">Make</span><span id="word-2" class="word">films</span><span id="word-3" class="word">with</span><span id="word-4" class="word">your</span><span id="word-5" class="word">AI</span><span id="tagline-stop"></span></div>
+<div id="rule"></div>
+<div id="subline">Video editor for Mac</div>
+<div id="ember-dot"><div id="ember-dot-cream"></div></div>
+<div id="hud-chapter" class="hud">07 — Make</div>
+<div id="hud-brand" class="hud">Émile</div>
+<div id="hud-product" class="hud">Video editor for Mac</div>
+<div id="hud-timecode" class="hud">00:11:19</div>
+
+<script type="module">
+  // The clip closes the film: its last frame is the film's 15th second.
+  const FILM_END_FRAME = 450;
+  let W, H, fps, beat, D, cv, g, dot, cream, groundEmber, huds, tc, startFrame;
+  let SNAP, B1, B2, B35, CY, LAND, STOP, lines, glowEl;
+
+  const clamp01 = (u) => Math.max(0, Math.min(1, u));
+  const expoOut = (u) => (u >= 1 ? 1 : 1 - Math.pow(2, -10 * u));
+  const easeOut = (u) => 1 - (1 - u) ** 3;
+  const lerp = (a, b, u) => a + (b - a) * u;
+
+  export function setup(ctx) {
+    W = ctx.stage.width; H = ctx.stage.height; D = ctx.d; fps = ctx.fps || 30;
+    beat = (n) => (ctx.bpm ? ctx.beat(n) : n * 0.375);
+    startFrame = FILM_END_FRAME - Math.round(D * fps);
+    // The dot reads as arrived a little before its motion ends, so the slide ends just ahead of beat 3.5.
+    SNAP = beat(0.5); B1 = beat(1); B2 = beat(2); B35 = beat(3.5) - 0.083;
+    CY = H * 0.5;
+
+    ctx.root.querySelector('#logo').src = ctx.asset('brand/Émile/logo-dark.png');
+    cv = ctx.root.querySelector('#speed-lines');
+    cv.width = W; cv.height = H; g = cv.getContext('2d');
+    dot = ctx.root.querySelector('#ember-dot');
+    cream = ctx.root.querySelector('#ember-dot-cream');
+    groundEmber = ctx.root.querySelector('#ground-ember');
+    huds = [...ctx.root.querySelectorAll('.hud')];
+    tc = ctx.root.querySelector('#hud-timecode');
+
+    // Positions are measured from the laid-out type, in stage px.
+    const rr = ctx.root.getBoundingClientRect();
+    const k = rr.width / W || 1;
+    const box = (el) => { const r = el.getBoundingClientRect();
+      return { x: (r.left - rr.left) / k, y: (r.top - rr.top) / k, w: r.width / k, h: r.height / k }; };
+    const stop = box(ctx.root.querySelector('#tagline-stop'));
+    STOP = { x: stop.x + stop.w / 2, y: stop.y + stop.h / 2, size: 30 };
+    // The ball lands resting on the tagline's baseline, a little right of centre, before sliding to the end.
+    const baseline = stop.y + stop.h;
+    LAND = { x: W / 2 + 60, y: baseline - 32 };
+    const w1 = box(ctx.root.querySelector('#word-1'));
+    const rule = ctx.root.querySelector('#rule');
+    const rw = STOP.x + STOP.size / 2 - w1.x;
+    rule.style.width = rw + 'px';
+    rule.style.left = w1.x + 'px';
+
+    const next = ctx.rng(3);
+    lines = Array.from({ length: 22 }, () => ({
+      y: H * (0.08 + 0.84 * next()), len: 180 + 520 * next(), off: next() * W * 1.6, w: 2 + 3 * next(), a: 0.35 + 0.5 * next(),
+    }));
+
+    // Blurred expo-out entrances read as settled late, so they lead their beat a little more.
+    const at = (b, lead = 0.12) => (beat(b) - lead) * 1000;
+    const back = 'cubic-bezier(.2,1.4,.3,1)', expo = 'cubic-bezier(.16,1,.3,1)';
+    ctx.root.querySelector('#logo').animate(
+      [{ transform: 'scale(0) rotate(-12deg)' }, { transform: 'scale(1) rotate(0)' }],
+      { delay: at(1, 0.07), duration: 300, easing: back, fill: 'both' });
+    ctx.root.querySelector('#wordmark').animate(
+      [{ opacity: 0, transform: 'translateX(-90px)', filter: 'blur(12px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }],
+      { delay: at(1.5), duration: 260, easing: expo, fill: 'both' });
+    const wordBeats = [2, 2.5, 3, 3, 3.5];
+    wordBeats.forEach((b, i) => {
+      ctx.root.querySelector('#word-' + (i + 1)).animate(
+        [{ opacity: 0, transform: 'translateX(-140px) skewX(-8deg)', filter: 'blur(16px)' },
+         { opacity: 1, transform: 'none', filter: 'blur(0)' }],
+        { delay: at(b), duration: 260, easing: expo, fill: 'both' });
+    });
+    rule.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+      { delay: at(4, 0.15), duration: 280, easing: expo, fill: 'both' });
+    ctx.root.querySelector('#subline').animate(
+      [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }],
+      { delay: at(4), duration: 300, easing: expo, fill: 'both' });
+    // The glow comes up with the landing, then breathes once across the hold.
+    const glow = ctx.root.querySelector('#ember-glow');
+    glow.animate([{ opacity: 0 }, { opacity: 0.75 }], { delay: at(1, 0.14), duration: 280, easing: expo, fill: 'both' });
+    glowEl = glow;
+  }
+
+  function placeDot(x, y, w, h, creamA, rot = 0) {
+    dot.style.width = w + 'px'; dot.style.height = h + 'px';
+    dot.style.transform = `translate(${x - w / 2}px, ${y - h / 2}px) rotate(${rot}deg)`;
+    cream.style.opacity = creamA;
+  }
+
+  function drawScene(t) {
+    const dark = t >= SNAP - 1e-6;
+    groundEmber.style.display = dark ? 'none' : 'block';
+    for (const el of huds) el.classList.toggle('on-dark', dark);
+
+    // Speed lines rush right while the pill whips; after the snap they thin out in ember.
+    g.clearRect(0, 0, W, H);
+    const lineFade = dark ? 1 - clamp01((t - SNAP) / 0.15) : 1;
+    if (lineFade > 0) {
+      g.fillStyle = dark ? 'rgb(217,84,30)' : 'rgb(247,244,238)';
+      for (const L of lines) {
+        const x = ((L.off + t * 5200) % (W * 1.6)) - L.len;
+        g.globalAlpha = L.a * lineFade;
+        g.beginPath(); g.roundRect(x, L.y, L.len, L.w, L.w / 2); g.fill();
+      }
+      g.globalAlpha = 1;
+    }
+
+    if (t < SNAP) {
+      // The whip: a cream pill at speed, smeared along its path.
+      const x = W / 2 - 3600 * (SNAP - t);
+      const grad = g.createLinearGradient(x - 620, 0, x, 0);
+      grad.addColorStop(0, 'rgba(247,244,238,0)'); grad.addColorStop(1, 'rgba(247,244,238,0.7)');
+      g.fillStyle = grad; g.beginPath(); g.roundRect(x - 620, CY - 40, 620, 80, 40); g.fill();
+      placeDot(x, CY, 360, 92, 1);
+      return;
+    }
+
+    if (t < B1) {
+      // Shrinks to the ball, turning ember, and hops down onto the baseline.
+      const u = (t - SNAP) / (B1 - SNAP);
+      const s = u * u * (3 - 2 * u);
+      const x = lerp(W / 2, LAND.x, expoOut(u));
+      const y = lerp(CY, LAND.y, u * u) - 90 * u * (1 - u) * 4 * (1 - u);
+      const g2 = g.createLinearGradient(x - 300 * (1 - s), 0, x, 0);
+      g2.addColorStop(0, 'rgba(247,244,238,0)'); g2.addColorStop(1, `rgba(247,244,238,${0.5 * (1 - s)})`);
+      g.fillStyle = g2; g.fillRect(x - 300, y - 30, 300, 60);
+      const stretch = u > 0.75 ? 1 + 0.25 * (u - 0.75) / 0.25 : 1;
+      placeDot(x, y, lerp(360, 64, s) / stretch, lerp(92, 64, s) * stretch, 1 - s);
+      return;
+    }
+
+    // Squash on the landing and on arriving as the full stop.
+    const sq = (bt, r) => { const d = Math.abs(t - bt); return d < r ? 1 - d / r : 0; };
+    const slideStart = B2 - 0.07;
+    if (t < slideStart) {
+      const q = sq(B1, 0.09);
+      const sy = 1 - 0.42 * q, sx = 1 + 0.45 * q;
+      placeDot(LAND.x, LAND.y + 32 * (1 - sy), 64 * sx, 64 * sy, 0);
+      return;
+    }
+
+    const u = clamp01((t - slideStart) / (B35 - slideStart));
+    // Smooth in and out so it arrives as the full stop exactly on its beat.
+    const p = u * u * (3 - 2 * u);
+    const size = lerp(64, STOP.size, p);
+    const x = lerp(LAND.x, STOP.x, p);
+    const yBase = lerp(LAND.y + 32, STOP.y + STOP.size / 2, p);
+    const vel = 4 * u * (1 - u);
+    const q = sq(B35, 0.08);
+    const sx = (1 + 0.6 * vel) * (1 + 0.4 * q), sy = (1 / (1 + 0.6 * vel)) * (1 - 0.35 * q);
+    const w = size * sx, h = size * sy;
+    if (vel > 0.05) {
+      const g3 = g.createLinearGradient(x - 200 * vel, 0, x, 0);
+      g3.addColorStop(0, 'rgba(217,84,30,0)'); g3.addColorStop(1, `rgba(217,84,30,${0.6 * vel})`);
+      g.fillStyle = g3; g.fillRect(x - 200 * vel, yBase - h * 0.8, 200 * vel, h * 0.6);
+    }
+    placeDot(x, yBase - h / 2, w, h, 0);
+  }
+
+  const z = (n) => String(n).padStart(2, '0');
+  export function draw(t) {
+    drawScene(t);
+    // One slow breath of the glow across the hold: its reach swells and settles, nothing arrives.
+    const b = clamp01((t - beat(5)) / (D - beat(5)));
+    const r = 760 + 110 * Math.sin(Math.PI * b) ** 2;
+    glowEl.style.background = `radial-gradient(circle ${r.toFixed(1)}px at 50% 42%, rgba(217,84,30,0.3), transparent 100%)`;
+    // The HUD counts the film's time, ending on 00:15:00.
+    const f = Math.min(FILM_END_FRAME, startFrame + Math.floor(t * fps + 1e-6));
+    tc.textContent = `${z(Math.floor(f / fps / 60))}:${z(Math.floor(f / fps) % 60)}:${z(f % fps)}`;
+  }
+</script>

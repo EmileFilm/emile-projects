@@ -679,28 +679,13 @@
         },
         {
           "path": "README.md",
-          "sha256": "3eb239a3157872a8fd772ecd1fbb74859b53a34d2bdddcce38948a976d6357bb",
-          "bytes": 1567
+          "sha256": "fed48e27f9855ae95735e84a53efe73874966e399ed1d0e6d29d559d55b21ca6",
+          "bytes": 1598
         },
         {
           "path": "assets/brand/Émile/logo-dark.png",
           "sha256": "e5f7437b27c0c5deb78c975f9aded91a4eb8a2dfc0ea27ffa9428b56c416b2d9",
           "bytes": 6367
-        },
-        {
-          "path": "assets/music/upbeat-modern-electronic-bright--14515641.json",
-          "sha256": "908b5543225ff2a774bc6c1569e492f943c6dbe2ca773115b8c4e6be0d2c4af5",
-          "bytes": 718
-        },
-        {
-          "path": "assets/music/upbeat-modern-electronic-bright--14515641.m4a",
-          "sha256": "a5fbe03430f6448ffeb0c468b73332055a13a0968869316607098d650a4dd4e7",
-          "bytes": 392397
-        },
-        {
-          "path": "assets/sfx/boom-01.m4a",
-          "sha256": "a5716b5db89d9eefa8d867f56accf1d740ca844b38dfe3fc4cb047befc10971d",
-          "bytes": 92091
         },
         {
           "path": "clips/bounce/clip.html",
@@ -744,8 +729,111 @@
         },
         {
           "path": "emile.json",
-          "sha256": "3d96a3b6d6fa99adde1c6135c114d4d3a6fbf80baca504959fbc858b43e1325a",
-          "bytes": 10430
+          "sha256": "3335ed8133687f30fed4a480a53b68e919763d435326ff5b0c144336500ff6e9",
+          "bytes": 9899
+        }
+      ]
+    },
+    {
+      "id": "make-me-a-launch-film",
+      "title": "Make me a launch film",
+      "line": "A typed line that turns into clips on a timeline, cut on the beat at 160 BPM: for an AI product's launch reel.",
+      "genre": "Motion design",
+      "kind": "Motion reel",
+      "seconds": 15,
+      "aspect": "16:9",
+      "preview": {
+        "path": "projects/make-me-a-launch-film/preview.mp4",
+        "bytes": 1580090,
+        "sha256": "9f417232d8055bc8267f18b0fcb1b8387b25270a15a91d4a746c717932a9d45c"
+      },
+      "poster": {
+        "path": "projects/make-me-a-launch-film/preview.jpg",
+        "bytes": 16973,
+        "sha256": "35935dcee577cf8a302df7dfbbdd0e36e44c9d360073b4ed2ee2704b6dd4836b"
+      },
+      "beats": {
+        "in": 0.1,
+        "hit": 0.2,
+        "hold": 0.86
+      },
+      "zh": {
+        "title": "帮我做一支发布片",
+        "kind": "动效合集",
+        "line": "打出的一句话变成时间线上的片段，160 拍卡着拍子切：适合 AI 产品的发布短片。"
+      },
+      "prompts": {
+        "en": {
+          "path": "prompts/make-me-a-launch-film.en.md",
+          "bytes": 2905,
+          "sha256": "66bc83a4b44a06c3165adbd52fe7b4aa1cf9d0e80e932c74e6e70c8678bff40c"
+        },
+        "zh": {
+          "path": "prompts/make-me-a-launch-film.zh.md",
+          "bytes": 3218,
+          "sha256": "a8aae80255cf5efb3c0c76ccef91a840a5e6f252d6a54626945595e34bb9b8d1"
+        }
+      },
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "c1a01b41c5d4e971429e84f61aea5feab8e1c1b5095e46662371c8219895a4ca",
+          "bytes": 3024
+        },
+        {
+          "path": "README.md",
+          "sha256": "6bbf8549612ca87079365f7c0c2b75e96a6986ed6250e44fa81f699fbe8ebb90",
+          "bytes": 1753
+        },
+        {
+          "path": "assets/brand/Émile/logo-dark.png",
+          "sha256": "e5f7437b27c0c5deb78c975f9aded91a4eb8a2dfc0ea27ffa9428b56c416b2d9",
+          "bytes": 6367
+        },
+        {
+          "path": "clips/bounce/clip.html",
+          "sha256": "6fbee25b5055a2c94ce2f09a29ae96661673f8473a17e03738aa555402779c5f",
+          "bytes": 6282
+        },
+        {
+          "path": "clips/circle-cut/clip.html",
+          "sha256": "e3a1e412e047064e3ff64b8bd2b230f192d9a0dd1244424be6aac22e6dda039f",
+          "bytes": 14123
+        },
+        {
+          "path": "clips/flashes/clip.html",
+          "sha256": "4d1c58b15cea1e51a7988b91acb06401cce681b8af13a94ce299aee262cebf84",
+          "bytes": 7712
+        },
+        {
+          "path": "clips/look-switch/clip.html",
+          "sha256": "b0b37695943d41d84b584663403af80cd0ad90b9d22890644f5a4219807878ce",
+          "bytes": 11196
+        },
+        {
+          "path": "clips/pill-whip/clip.html",
+          "sha256": "999e87b6b2957460ef8f89e86f3f2bc6486e07312ad7b1f7ff8f7c4420803aed",
+          "bytes": 11389
+        },
+        {
+          "path": "clips/prompt/clip.html",
+          "sha256": "9a02d748241b9c857938ae7cae2da9983f902291a2163c637ddd99416b33f95c",
+          "bytes": 12442
+        },
+        {
+          "path": "clips/say-it/clip.html",
+          "sha256": "2fe8213ce0b210f84b3a705e78c5265ba9434486ec1407f9fca9955e132873bc",
+          "bytes": 6949
+        },
+        {
+          "path": "clips/tracks-3d/clip.html",
+          "sha256": "48d16307604d6f544dc0ac2c410741839482acd733012bc44eeeca5433cdc842",
+          "bytes": 6636
+        },
+        {
+          "path": "emile.json",
+          "sha256": "296028cd9a8ea79c4a5f736061534c40b0af7b59f67d53e2adc2b7207694a8c2",
+          "bytes": 9060
         }
       ]
     }

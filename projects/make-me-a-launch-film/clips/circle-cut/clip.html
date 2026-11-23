@@ -1,0 +1,262 @@
+<style>
+  #ground { position: absolute; inset: 0; background: #f7f4ee; }
+  #fx-defs { position: absolute; width: 0; height: 0; }
+
+  #picture-card { position: absolute; left: 680px; top: 140px; width: 560px; height: 315px;
+    border-radius: 31px; overflow: hidden; box-shadow: 0 0 0 2px #3b352f, 0 30px 80px rgba(16,15,14,0.22);
+    background: radial-gradient(90% 70% at 50% 46%, #2d2823 0, #181513 48%, #100f0e 100%);
+    transform-origin: 50% 50%; }
+  #picture-glow { position: absolute; left: 280px; top: 170px; width: 420px; height: 420px; margin: -210px 0 0 -210px;
+    background: radial-gradient(circle, rgba(217,84,30,0.3), transparent 52%); }
+  #picture-sun { position: absolute; left: 280px; top: 170px; width: 112px; height: 112px; margin: -56px 0 0 -56px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, rgba(247,244,238,0.55) 0, rgba(247,244,238,0) 34%),
+                radial-gradient(circle at 50% 50%, #d9541e 0, #d9541e 62%, #a83f14 100%);
+    box-shadow: 0 0 40px rgba(217,84,30,0.5); }
+  #picture-horizon { position: absolute; left: 0; right: 0; top: 226px; height: 89px; background: #100f0e;
+    border-top: 3px solid rgba(247,244,238,0.85); }
+
+  #circle-ring { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible;
+    transform-origin: 960px 297px; }
+
+  #track { position: absolute; left: 210px; top: 624px; width: 1500px; height: 96px; border-radius: 12px; background: #e9e3d8; }
+  .clip { position: absolute; top: 632px; height: 80px; border-radius: 14px; box-sizing: border-box;
+    font: 600 28px/80px -apple-system, 'SF Pro Text', 'Inter', sans-serif; padding-left: 22px; white-space: nowrap;
+    overflow: hidden; }
+  .clip.cream { background: #f7f4ee; color: #100f0e; box-shadow: inset 0 0 0 2px #d6cdbf; }
+  .clip.brown { background: #2d2823; color: #f7f4ee; }
+  .clip.ember { background: #d9541e; color: #f7f4ee; }
+  #clip-intro { left: 220px; width: 130px; padding-left: 18px; }
+  #clip-cut-left { left: 360px; width: 600px; border-radius: 14px 0 0 14px; }
+  #clip-cut-right { left: 960px; width: 600px; border-radius: 0 14px 14px 0; padding-left: 26px; }
+  #clip-sun { left: 970px; width: 255px; }
+  #clip-logo { left: 1235px; width: 465px; }
+
+  #cut-ticks { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+
+  #playhead { position: absolute; left: 0; top: 580px; width: 60px; height: 160px; margin-left: -30px; }
+  #playhead-trail { position: absolute; right: 30px; top: 0; height: 160px; width: 0;
+    background: linear-gradient(90deg, rgba(217,84,30,0), rgba(217,84,30,0.55)); border-radius: 15px; }
+  #playhead-head { position: absolute; left: 0; top: 0; width: 60px; height: 30px; border-radius: 99px; background: #d9541e; }
+  #playhead-line { position: absolute; left: 27px; top: 22px; width: 6px; height: 138px; background: #d9541e; }
+
+  #pill-label { position: absolute; left: 0; top: 0; padding: 10px 40px 18px 34px; border-radius: 99px;
+    background: #d9541e; color: #100f0e; white-space: nowrap;
+    font: italic 900 64px/0.95 'Fraunces', serif; letter-spacing: -0.025em;
+    transform-origin: 0 50%; }
+
+  #counter { position: absolute; left: 660px; top: 205px; width: 600px; text-align: center;
+    font: italic 900 140px/1 'Fraunces', serif; letter-spacing: -0.025em; color: #100f0e;
+    font-variant-numeric: tabular-nums; transform-origin: 50% 50%; }
+
+  #cursor { position: absolute; left: 0; top: 0; width: 44px; height: 60px; overflow: visible; }
+
+  .hud { position: absolute; font: 600 20px/1 -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+    text-transform: uppercase; letter-spacing: 0.12em; color: rgba(16,15,14,0.55); }
+  #hud-chapter { left: 56px; top: 56px; }
+  #hud-brand { right: 56px; top: 56px; }
+  #hud-product { left: 56px; bottom: 120px; }
+  #hud-timecode { right: 56px; bottom: 120px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="ground"></div>
+<svg id="fx-defs">
+  <filter id="hblur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur id="hblur-amt" stdDeviation="0 0"/></filter>
+  <filter id="vblur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur id="vblur-amt" stdDeviation="0 0"/></filter>
+</svg>
+<div id="picture-card">
+  <div id="picture-glow"></div>
+  <div id="picture-sun"></div>
+  <div id="picture-horizon"></div>
+</div>
+<svg id="circle-ring"><path id="circle-ring-path" fill="none" stroke="#d9541e" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div id="track"></div>
+<div id="clip-intro" class="clip cream">Intro</div>
+<div id="clip-cut-left" class="clip brown">Launch film</div>
+<div id="clip-cut-right" class="clip brown">Sun, wide</div>
+<div id="clip-sun" class="clip ember">Sun</div>
+<div id="clip-logo" class="clip cream">Logo</div>
+<canvas id="cut-ticks"></canvas>
+<div id="playhead"><div id="playhead-trail"></div><div id="playhead-line"></div><div id="playhead-head"></div></div>
+<div id="counter">00:00</div>
+<div id="pill-label">circle it</div>
+<svg id="cursor" viewBox="0 0 30 42"><path d="M1 1 L1 33 L9.5 25.5 L15 39 L21 36.5 L15.5 23.5 L27 23.5 Z" fill="#100f0e" stroke="#f7f4ee" stroke-width="2" stroke-linejoin="round"/></svg>
+<div id="hud-chapter" class="hud">06 — Edit</div>
+<div id="hud-brand" class="hud">Émile</div>
+<div id="hud-product" class="hud">Video editor for Mac</div>
+<div id="hud-timecode" class="hud">00:09:00</div>
+
+<script type="module">
+  const SUN = { x: 960, y: 310 };
+  const CUT = { x: 960, y: 672 };
+  const TRACK_L = 220, TRACK_R = 1700;
+  let el, ringPts, ringLen, ringPath, tk, g, beat, fps, filmStart;
+
+  const clamp = (v) => Math.max(0, Math.min(1, v));
+  const expoOut = (u) => (u >= 1 ? 1 : 1 - Math.pow(2, -10 * u));
+  const expoIn = (u) => (u <= 0 ? 0 : Math.pow(2, 10 * (u - 1)));
+  // Close to cubic-bezier(.2,1.4,.3,1): overshoots and settles.
+  const backOut = (u) => { const s = 2.2, v = u - 1; return 1 + (s + 1) * v * v * v + s * v * v; };
+  const inOut = (u) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2);
+  const lerp = (a, b, u) => a + (b - a) * u;
+
+  // A slightly wobbly loop that overshoots its start, like a quick hand-drawn ring.
+  function ringPoint(k) {
+    const th = -2.5 + k * (Math.PI * 2 + 0.55);
+    const r = 104 * (1 + 0.06 * Math.sin(2 * th + 1) + 0.03 * Math.sin(5 * th)) * (1 - 0.08 * k);
+    return { x: SUN.x + Math.cos(th) * r * 1.18, y: SUN.y + Math.sin(th) * r * 0.92 };
+  }
+
+  export function setup(ctx) {
+    beat = (n) => (ctx.bpm ? ctx.beat(n) : n * 0.375);
+    fps = ctx.fps || 30;
+    filmStart = ctx.vars.filmStart ?? 9.0;
+    const q = (s) => ctx.root.querySelector(s);
+    el = {
+      card: q('#picture-card'), ring: q('#circle-ring'), cursor: q('#cursor'), pill: q('#pill-label'),
+      left: q('#clip-cut-left'), right: q('#clip-cut-right'), sun: q('#clip-sun'), logo: q('#clip-logo'),
+      playhead: q('#playhead'), trail: q('#playhead-trail'), counter: q('#counter'),
+      hblur: q('#hblur-amt'), vblur: q('#vblur-amt'), tc: q('#hud-timecode'),
+    };
+    ringPts = [];
+    for (let i = 0; i <= 90; i++) ringPts.push(ringPoint(i / 90));
+    ringPath = q('#circle-ring-path');
+    ringPath.setAttribute('d', 'M' + ringPts.map((p) => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' L'));
+    ringLen = ringPath.getTotalLength();
+    ringPath.style.strokeDasharray = `${ringLen} ${ringLen}`;
+    tk = q('#cut-ticks');
+    tk.width = ctx.stage.width; tk.height = ctx.stage.height;
+    g = tk.getContext('2d');
+  }
+
+  export function draw(t, ctx) {
+    const b1 = beat(1), b2 = beat(2), b25 = beat(2.5), b3 = beat(3), b35 = beat(3.5);
+
+    // Ring: drawn by the cursor in the last stretch before beat 1.
+    const ringStart = beat(0.5);
+    const ru = clamp((t - ringStart) / (b1 - ringStart));
+    const ruE = 1 - Math.pow(1 - ru, 1.6);
+    ringPath.style.strokeDashoffset = ringLen * (1 - ruE);
+    ringPath.style.opacity = ru > 0 ? 1 : 0;
+
+    // Cursor: swoop in, trace the ring, drop to the clip, click on beat 2, leave.
+    const start = ringPoint(0);
+    let cx, cy;
+    if (t < ringStart) {
+      const u = expoOut(clamp(t / ringStart));
+      cx = lerp(1260, start.x, u); cy = lerp(620, start.y, u);
+    } else if (t < b1 + 0.06) {
+      const p = ringPoint(Math.min(1, ruE)); cx = p.x; cy = p.y;
+    } else if (t < b2) {
+      const end = ringPoint(1);
+      const u = expoOut(clamp((t - (b1 + 0.06)) / (b2 - 0.07 - b1 - 0.06)));
+      cx = lerp(end.x, CUT.x, u); cy = lerp(end.y, CUT.y, u);
+    } else {
+      // Leaves down-left, away from the 'cut it' pill, and fades out inside the frame.
+      const u = expoOut(clamp((t - b2) / (b25 - b2 + 0.07))) ;
+      cx = lerp(CUT.x, 620, u); cy = lerp(CUT.y, 880, u);
+    }
+    el.cursor.style.opacity = t < b2 ? 1 : 1 - clamp((t - b2) / (b25 - b2 + 0.07));
+    const press = t < b2 ? Math.max(0, 1 - (b2 - t) / 0.06) : 0;
+    el.cursor.style.transform = `translate(${cx - 2}px, ${cy - 2}px) scale(${1.25 * (1 - 0.18 * press)})`;
+
+    // Pill: pops on beat 1, carries itself down to the cut and changes its words on beat 2, then shrinks away.
+    const popU = clamp((t - (b1 - 0.07)) / 0.25);
+    let ps = t < b1 - 0.07 ? 0 : backOut(popU);
+    const mv = clamp((t - (b2 - 0.07)) / 0.25);
+    const mvE = backOut(mv);
+    const px = lerp(1272, 1004, mvE), py = lerp(262, 742, mvE);
+    const outU = clamp((t - (b25 + 0.02)) / 0.16);
+    ps *= 1 - expoIn(outU);
+    el.pill.textContent = t >= b2 ? 'cut it' : 'circle it';
+    el.pill.style.transform = `translate(${px}px, ${py}px) scale(${Math.max(0, ps)})`;
+    el.pill.style.visibility = ps > 0.01 ? 'visible' : 'hidden';
+
+    // Cut on beat 2: the halves part; the right half leaves fast with a horizontal smear.
+    const cut = t >= b2;
+    el.left.style.borderRadius = cut ? '14px' : '14px 0 0 14px';
+    el.right.style.borderRadius = cut ? '14px' : '0 14px 14px 0';
+    const gapU = expoOut(clamp((t - b2) / 0.1));
+    // Gone by half beat 2.5, before the rest of the row lands where it was.
+    const slideU = clamp((t - (b2 + 0.02)) / (b25 - b2 - 0.02));
+    // The slide stays inside the frame (its right edge at most ~1880 px) and fades as it goes.
+    const sx = 270 * expoIn(slideU);
+    const sv = slideU > 0 && slideU < 1 ? 1500 * 10 * Math.log(2) * expoIn(slideU) / (b25 - b2 - 0.02) : 0;
+    el.right.style.opacity = 1 - clamp((slideU - 0.25) / 0.75);
+    el.left.style.transform = `translateX(${-4 * gapU}px)`;
+    el.right.style.transform = `translateX(${4 * gapU + sx}px) scaleX(${1 + Math.min(0.08, sv / 40000)})`;
+    el.right.style.transformOrigin = '0 50%';
+    el.hblur.setAttribute('stdDeviation', `${Math.min(30, sv / 900).toFixed(1)} 0`);
+    el.right.style.filter = sv > 0 ? 'url(#hblur)' : 'none';
+
+    // The rest of the row drops in and lands on half beat 2.5, squashing as it lands.
+    for (const [node, h] of [[el.sun, 220], [el.logo, 300]]) {
+      const s0 = b25 - 0.12;
+      const u = clamp((t - s0) / 0.12);
+      const y = lerp(-h, 0, u * u);
+      const land = Math.max(0, 1 - Math.abs(t - b25) / 0.07) * (t >= b25 - 0.02 ? 1 : 0);
+      node.style.transform = `translateY(${y}px) scale(${1 + 0.05 * land}, ${1 - 0.22 * land})`;
+      node.style.transformOrigin = '50% 100%';
+      node.style.opacity = t < s0 ? 0 : 1;
+    }
+
+    // Ticks burst from the cut point.
+    g.clearRect(0, 0, tk.width, tk.height);
+    const d = t - b2;
+    if (d >= 0 && d < 0.3) {
+      const k = expoOut(d / 0.3);
+      g.strokeStyle = `rgba(217,84,30,${1 - d / 0.3})`;
+      g.lineWidth = 5; g.lineCap = 'round';
+      for (let i = 0; i < 14; i++) {
+        const a = (Math.PI * 2 * i) / 14 + 0.2;
+        const r0 = 58 + 90 * k, r1 = r0 + 30 * (1 - k) + 8;
+        g.beginPath();
+        g.moveTo(CUT.x + Math.cos(a) * r0, CUT.y + Math.sin(a) * r0);
+        g.lineTo(CUT.x + Math.cos(a) * r1, CUT.y + Math.sin(a) * r1);
+        g.stroke();
+      }
+      // The straight cut line, a flash of ink across the clip.
+      g.fillStyle = `rgba(16,15,14,${1 - d / 0.15})`;
+      if (d < 0.15) g.fillRect(CUT.x - 3, 614, 6, 116);
+    }
+
+    // Picture card shutters shut into a line; the counter opens out of it on beat 3.
+    // Shut by beat 3, as the counter opens.
+    const shutU = clamp((t - (b25 + 0.02)) / (b3 - b25 - 0.02));
+    const shut = 1 - expoIn(shutU) * 0.995;
+    el.card.style.transform = `scaleY(${shut})`;
+    el.ring.style.transform = `scaleY(${shut})`;
+    el.card.style.visibility = shut < 0.01 ? 'hidden' : 'visible';
+    el.ring.style.visibility = shut < 0.01 ? 'hidden' : 'visible';
+
+    // Lands on half beat 3.5, with the roll.
+    const cIn = clamp((t - (b3 - 0.024)) / (b35 - b3 + 0.07));
+    const cs = t < b3 - 0.07 ? 0 : backOut(cIn);
+    // A slight horizontal give that settles as the roll stops on half beat 3.5.
+    const cx2 = clamp((t - (b3 - 0.07)) / (b35 - b3 + 0.07));
+    el.counter.style.transform = `scale(${1 + 0.06 * (1 - cx2)}, ${Math.max(0, cs)})`;
+    el.counter.style.visibility = cs > 0.01 ? 'visible' : 'hidden';
+    const rollU = clamp((t - b3) / (b35 - b3));
+    const n = t >= b35 ? 15 : Math.floor(15 * rollU);
+    el.counter.textContent = `00:${String(n).padStart(2, '0')}`;
+    const vb = rollU > 0 && rollU < 1 ? 9 : 0;
+    el.vblur.setAttribute('stdDeviation', `0 ${vb}`);
+    el.counter.style.filter = vb ? 'url(#vblur)' : 'none';
+
+    // Playhead whips across the full row from beat 3 to half beat 3.5.
+    // Ends a touch past the half beat so it is still travelling, not settled, before it.
+    const wEnd = b35 + 0.05;
+    const wu = clamp((t - b3) / (wEnd - b3));
+    const we = inOut(wu);
+    const x = lerp(TRACK_L, TRACK_R, we);
+    const speed = wu > 0 && wu < 1 ? (TRACK_R - TRACK_L) * 6 * wu * (1 - wu) * (wu < 0.5 ? 2 * wu : 2 * (1 - wu)) / (wEnd - b3) : 0;
+    el.playhead.style.transform = `translateX(${x}px)`;
+    el.trail.style.width = `${Math.min(420, speed * 0.06)}px`;
+
+    // Timecode counts the film's real time as MM:SS:FF.
+    const f = Math.floor((t + filmStart) * fps + 1e-6);
+    const ff = f % fps, ss = Math.floor(f / fps) % 60, mm = Math.floor(f / fps / 60);
+    const z = (v) => String(v).padStart(2, '0');
+    el.tc.textContent = `${z(mm)}:${z(ss)}:${z(ff)}`;
+  }
+</script>

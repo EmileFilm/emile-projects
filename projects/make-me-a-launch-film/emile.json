@@ -1,0 +1,247 @@
+{
+ "$schema": "https://emile.dev/schema/project-6.json",
+ "version": 6,
+ "revision": 16,
+ "project": {
+  "id": "87e03ea5-9648-47a7-89fd-c2b0fd0c9a97",
+  "title": "Make me a launch film",
+  "idea": "A 15-second 16:9 motion-design film at 160 BPM, cut on the beat, about Émile, a video editor for Mac made for AI: you say the film you want, and the AI makes it on a real multi-track timeline. The Émile brand: near-black brown grounds with soft glows, cream words, one ember-orange accent, heavy italic Fraunces. An ember ball bounces on a cream line; \"SAY IT.\" slams in; a prompt is typed and its words drop onto tracks as clips; the tracks stack in 3D; a look switches across a frame; a spot is circled and a clip cut while a playhead runs; half-beat flashes; the logo with \"Make films with your AI.\" and one low hit as it lands.",
+  "aspect": "16:9",
+  "fps": {
+   "num": 30,
+   "den": 1
+  },
+  "language": "en",
+  "duration": null,
+  "seed": 1265734028,
+  "series": null,
+  "created_with": "emile-engine 0.1.0 on darwin",
+  "bpm": 160
+ },
+ "materials": [],
+ "facts": [],
+ "timeline": {
+  "clips": [
+   {
+    "id": "bounce",
+    "type": "code",
+    "name": "Ember ball bounce",
+    "frames": [
+     0,
+     45
+    ],
+    "moments": [
+     {
+      "id": "bounce-1",
+      "seconds": 1.5,
+      "say": "",
+      "show": "Dark ground with the brown radial glow. A thin cream line runs across the frame at 62% height. The ember ball enters from the left and bounces along it, one landing on each of the 4 beats, squashing on impact, stretching in the air; the line dips and ripples where it lands; its arc stays behind as a dotted cream trail (8 px dots). HUD fades in on beat 1: '01 — SAY', 'ÉMILE', 'VIDEO EDITOR FOR MAC', timecode. On beat 4 the ball leaps high toward the right edge.",
+      "at": 0
+     }
+    ],
+    "drawn": 45
+   },
+   {
+    "id": "grain",
+    "type": "filter",
+    "frames": [
+     0,
+     450
+    ],
+    "filter": {
+     "id": "emile/grain",
+     "version": "^1",
+     "params": {
+      "amount": 0.18,
+      "size": 1.5
+     }
+    },
+    "track": 2
+   },
+   {
+    "id": "say-it",
+    "type": "code",
+    "name": "SAY IT. title",
+    "frames": [
+     45,
+     90
+    ],
+    "moments": [
+     {
+      "id": "say-it-1",
+      "seconds": 1.5,
+      "say": "",
+      "show": "On beat 1 a full ember #d9541e band wipes in from the right with motion blur and fills the frame. On beat 2 'SAY' slams in from the left in huge near-black #100f0e heavy italic Fraunces (about 420 px) with a hard horizontal smear; on beat 3 'IT' slams in beside it; on beat 4 the ball drops in as a near-black full stop, squashes and settles. HUD in near-black at 55%.",
+      "at": 0
+     }
+    ],
+    "drawn": 45
+   },
+   {
+    "id": "prompt",
+    "type": "code",
+    "name": "Typing the prompt → Words become clips",
+    "frames": [
+     90,
+     180
+    ],
+    "moments": [
+     {
+      "id": "prompt-1",
+      "seconds": 1.5,
+      "say": "",
+      "show": "Dark ground with an ember glow behind centre. A chat card (#1b1917, radius 31, 1100 px wide) sits in the middle with a pill input field; HUD chapter '02 — ASK'. Words type into the field one per half beat with a blinking cream caret: 'Make me a launch film' in 44 px sans; on beat 4 the ember round send button pulses and the words lift out of the field.",
+      "at": 0
+     },
+     {
+      "id": "clips-drop-1",
+      "seconds": 1.5,
+      "say": "",
+      "show": "The chat card shrinks away while each word of the prompt stretches into a rounded clip block (cream, glow brown, one ember) and drops onto three stacked timeline tracks, one landing per beat with squash and a small bounce; the ember playhead appears at the left on beat 4. HUD chapter '03 — BUILD'.",
+      "at": 1.5
+     }
+    ],
+    "drawn": 90
+   },
+   {
+    "id": "tracks-3d",
+    "type": "code",
+    "name": "Tracks stack in 3D",
+    "frames": [
+     180,
+     225
+    ],
+    "moments": [
+     {
+      "id": "tracks-3d-1",
+      "seconds": 1.5,
+      "say": "",
+      "show": "Same three tracks with their clips: on beat 1 the timeline tilts back into perspective (about 55° on X, rotated −20° on Z); on beats 2, 3 and 4 the tracks lift apart one by one into floating layers, each with a small sans tag on its edge: 'PICTURE', 'WORDS', 'LOOK'; the ember clip casts a warm glow on the layer under it; the whole stack turns slowly. HUD chapter '04 — LAYERS'.",
+      "at": 0
+     }
+    ],
+    "drawn": 45
+   },
+   {
+    "id": "look-switch",
+    "type": "code",
+    "name": "Looks switch across a frame",
+    "frames": [
+     225,
+     270
+    ],
+    "moments": [
+     {
+      "id": "look-switch-1",
+      "seconds": 1.5,
+      "say": "",
+      "show": "A rounded picture card (radius 31, 1000×560) centred on dark: a drawn scene of an ember sun setting over a cream horizon line with the ball's dotted arc in the sky. On each beat a vertical seam sweeps left to right and leaves a new look behind it: beat 1 clean, beat 2 halftone (near-black dots on cream paper), beat 3 risograph (ember and brown inks slightly out of register on cream), beat 4 glow (the sun blooms ember into the dark). A pill under the card names the current look in sans 28 px: 'Halftone', 'Risograph', 'Glow'. HUD chapter '05 — LOOK'.",
+      "at": 0
+     }
+    ],
+    "drawn": 45
+   },
+   {
+    "id": "circle-cut",
+    "type": "code",
+    "name": "Circle it, cut it → Playhead and counter",
+    "frames": [
+     270,
+     315
+    ],
+    "moments": [
+     {
+      "id": "circle-cut-1",
+      "seconds": 1.125,
+      "say": "",
+      "show": "Flat cream #f7f4ee ground, near-black ink. A small picture card (the ember sun scene) at top centre and one track with a long glow-brown clip below. Beat 1: a near-black cursor arrow swoops in and draws an ember hand-drawn ring around the sun on the picture, a pill 'circle it' pops beside it in heavy italic Fraunces 64 px. Beat 2: the cursor drops to the clip and clicks; a burst of short ember ticks radiates and the clip splits in two along a straight line, pill 'cut it'. Beat 3: the right half slides away with blur. HUD in near-black at 55%, chapter '06 — EDIT'.",
+      "at": 0
+     },
+     {
+      "id": "playhead-1",
+      "seconds": 0.375,
+      "say": "",
+      "show": "Still on cream: the cut clip has joined a full row of clips; on the beat the ember playhead whips across them left to right with motion blur while a big counter above, heavy italic Fraunces 140 px near-black, rolls from 00:00 to 00:15 with vertical blur.",
+      "at": 1.13
+     }
+    ],
+    "drawn": 45
+   },
+   {
+    "id": "flashes",
+    "type": "code",
+    "name": "Quick flashes",
+    "frames": [
+     315,
+     349
+    ],
+    "moments": [
+     {
+      "id": "flashes-1",
+      "seconds": 1.125,
+      "say": "",
+      "show": "Six full-frame flashes, a hard cut on every half beat (0.1875 s each), no HUD: 1 cream ground, near-black concentric rings expanding around an ember target dot; 2 ember ground, a spiky near-black sun with a cream core, rays spinning; 3 glow brown #2d2823 ground, a cream eye opens with an ember iris; 4 ember ground, near-black halftone dots growing toward a cream dot at the centre; 5 film black ground, a cream planet with two small ember moons on thin cream orbits; 6 film black ground, a dark panel film reel with five round holes and an ember hub, spinning fast.",
+      "at": 0
+     }
+    ],
+    "drawn": 34
+   },
+   {
+    "id": "pill-whip",
+    "type": "code",
+    "name": "Pill whip → End card: Émile",
+    "frames": [
+     349,
+     450
+    ],
+    "moments": [
+     {
+      "id": "pill-whip-1",
+      "seconds": 0.375,
+      "say": "",
+      "show": "One beat. Ember ground: a cream pill whips across from left to right with horizontal speed lines and heavy blur; as it passes centre the ground snaps to film black and the pill shrinks to a dot, turning ember.",
+      "at": 0
+     },
+     {
+      "id": "end-card-1",
+      "seconds": 3,
+      "say": "",
+      "show": "Film black ground with the brown radial glow and an ember glow behind the logo. Beat 1: the ember dot lands and squashes. Beats 1–3: the logo assets/brand/Émile/logo-dark.png (220 px, as given) pops in at left of centre, 'Émile' in Fraunces italic 500 beside it; the line 'Make films with your AI' slides in word by word with blur, cream heavy italic Fraunces 110 px, and the ember dot slides in as its full stop. Beat 4: a thin cream rule draws under it and 'Video editor for Mac' fades up in sans 34 px cream at 70%. Beats 5–8: hold, the glow breathing once; HUD timecode reaches 00:00:15.",
+      "at": 0.37
+     }
+    ],
+    "drawn": 101
+   }
+  ],
+  "blends": [
+   {
+    "id": "emile/wipe",
+    "version": "^1",
+    "from": "say-it",
+    "to": "prompt",
+    "in": 6,
+    "out": 5
+   },
+   {
+    "id": "emile/wipe",
+    "version": "^1",
+    "from": "look-switch",
+    "to": "circle-cut",
+    "in": 6,
+    "out": 5
+   }
+  ]
+ },
+ "packs": [
+  {
+   "id": "emile/wipe",
+   "version": "^1",
+   "paid": false
+  },
+  {
+   "id": "emile/grain",
+   "version": "^1",
+   "paid": false
+  }
+ ]
+}

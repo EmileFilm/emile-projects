@@ -18,6 +18,6 @@ A ball, a slam and a run of short chapters cut on the beat, landing on the name:
 - The words: the title in `clips/title-slam/clip.html`, each chapter's number and line in its clip, the name and the line in `clips/icon-burst/clip.html`.
 - The colours and type: the Visual conventions in `AGENTS.md` name them all; the clips use those values.
 - The logo: `assets/brand/Émile/logo-dark.png`; put yours in its place.
-- The music: `assets/music/`, or have the AI score it again at 150 BPM.
+- The music: none goes with a template; have the AI score it at 150 BPM (the prompt says what it was).
 
 **What makes it this piece.** One idea a chapter, each on its own ground; every entrance, morph and hit on a beat; the ball that opens it is the accent that closes it. Keep those when making one like it; the words, the chapters' subjects and the colours are the maker's own.

@@ -1,0 +1,160 @@
+<style>
+  #ground { position: absolute; inset: 0;
+    background: radial-gradient(90% 70% at 50% 46%, #2d2823 0, #181513 48%, #100f0e 100%); }
+  #line-trail { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+  #ember-ball { position: absolute; left: 0; top: 0; width: 64px; height: 64px; margin: -32px 0 0 -32px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, rgba(247,244,238,0.55) 0, rgba(247,244,238,0) 34%),
+                radial-gradient(circle at 50% 50%, #d9541e 0, #d9541e 62%, #a83f14 100%);
+    box-shadow: 0 0 28px rgba(217,84,30,0.45); }
+  .hud { position: absolute; font: 600 20px/1 -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+    text-transform: uppercase; letter-spacing: 0.12em; color: rgba(247,244,238,0.55); opacity: 0; }
+  #hud-chapter { left: 56px; top: 56px; }
+  #hud-brand { right: 56px; top: 56px; }
+  #hud-product { left: 56px; bottom: 120px; }
+  #hud-timecode { right: 56px; bottom: 120px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div id="ground"></div>
+<canvas id="line-trail"></canvas>
+<div id="ember-ball"></div>
+<div id="hud-chapter" class="hud">01 — Say</div>
+<div id="hud-brand" class="hud">Émile</div>
+<div id="hud-product" class="hud">Video editor for Mac</div>
+<div id="hud-timecode" class="hud">00:00:00</div>
+
+<script type="module">
+  const R = 32;
+  let W, H, LINE_Y, BASE, segs, landings, cv, g, ball, tc, beat, fps;
+
+  // One parabolic hop per segment: x moves linearly, y rises by h at its middle.
+  function pos(t) {
+    let s = segs[segs.length - 1];
+    for (const k of segs) if (t <= k.tb) { s = k; break; }
+    const u = (t - s.ta) / (s.tb - s.ta);
+    const x = s.xa + (s.xb - s.xa) * u;
+    const y = BASE - 4 * s.h * u * (1 - u);
+    const dur = s.tb - s.ta;
+    const vx = (s.xb - s.xa) / dur;
+    const vy = -4 * s.h * (1 - 2 * u) / dur;
+    return { x, y, vx, vy };
+  }
+
+  // How far the line is pushed down at x: a dip under each landing and a ripple running outward.
+  function lineOffset(x, t) {
+    let off = 0;
+    for (const L of landings) {
+      const d = t - L.t;
+      if (d < -0.04) continue;
+      const near = Math.exp(-(((x - L.x) / 90) ** 2));
+      const pre = d < 0 ? 1 + d / 0.04 : 0;
+      off += 16 * (d < 0 ? pre : Math.exp(-d * 9) * Math.cos(d * 40)) * near;
+      if (d > 0) {
+        const r = Math.abs(x - L.x) - 1100 * d;
+        off += 7 * Math.exp(-d * 5) * Math.cos(r / 34) * Math.exp(-((r / 140) ** 2));
+      }
+    }
+    return off;
+  }
+
+  export function setup(ctx) {
+    W = ctx.stage.width; H = ctx.stage.height;
+    LINE_Y = Math.round(H * 0.62);
+    BASE = LINE_Y - R;
+    beat = (n) => (ctx.bpm ? ctx.beat(n) : n * 0.375);
+    fps = ctx.fps || 30;
+    const b1 = beat(1), b2 = beat(2), b3 = beat(3), b4 = beat(4);
+    const sx = W / 1920;
+    // The first hop starts before the clip so frame one already shows the ball falling in from the left.
+    segs = [
+      { ta: b1 - 0.6, tb: b1, xa: 40 * sx, xb: 560 * sx, h: 420 },
+      { ta: b1, tb: b2, xa: 560 * sx, xb: 860 * sx, h: 300 },
+      { ta: b2, tb: b3, xa: 860 * sx, xb: 1160 * sx, h: 210 },
+      { ta: b3, tb: b3 + 2 * (b4 - b3), xa: 1160 * sx, xb: 2360 * sx, h: 560 },
+    ];
+    landings = [b1, b2, b3].map((t, i) => ({ t, x: segs[i].xb }));
+
+    cv = ctx.root.querySelector('#line-trail');
+    cv.width = W; cv.height = H;
+    g = cv.getContext('2d');
+    ball = ctx.root.querySelector('#ember-ball');
+    tc = ctx.root.querySelector('#hud-timecode');
+
+    for (const el of ctx.root.querySelectorAll('.hud')) {
+      el.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }],
+        { delay: (b1 - 0.07) * 1000, duration: 250, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'both' });
+    }
+  }
+
+  export function draw(t, ctx) {
+    g.clearRect(0, 0, W, H);
+
+    // The line, displaced by the landings so far.
+    g.strokeStyle = 'rgba(247,244,238,0.9)';
+    g.lineWidth = 3;
+    g.beginPath();
+    for (let x = -10; x <= W + 10; x += 6) {
+      const y = LINE_Y + lineOffset(x, t);
+      x === -10 ? g.moveTo(x, y) : g.lineTo(x, y);
+    }
+    g.stroke();
+
+    // Dotted trail: dots spaced evenly along the arc already travelled.
+    g.fillStyle = 'rgba(247,244,238,0.6)';
+    const t0 = Math.max(0, segs[0].ta);
+    let prev = pos(t0), acc = 0;
+    const step = 1 / 600;
+    for (let s = t0 + step; s < t - 0.05; s += step) {
+      const p = pos(s);
+      acc += Math.hypot(p.x - prev.x, p.y - prev.y);
+      if (acc >= 24) {
+        acc = 0;
+        g.beginPath(); g.arc(p.x, p.y, 4, 0, Math.PI * 2); g.fill();
+      }
+      prev = p;
+    }
+
+    // Splash ticks fanning up from each landing.
+    for (const L of landings) {
+      const d = t - L.t;
+      if (d < 0 || d > 0.3) continue;
+      const k = d / 0.3;
+      g.strokeStyle = `rgba(247,244,238,${0.8 * (1 - k)})`;
+      g.lineWidth = 3;
+      for (let i = 0; i < 9; i++) {
+        const a = Math.PI + (Math.PI * (i + 0.5)) / 9;
+        const r0 = 50 + 70 * k, r1 = r0 + 26 * (1 - k) + 8;
+        g.beginPath();
+        g.moveTo(L.x + Math.cos(a) * r0, LINE_Y + Math.sin(a) * r0 * 0.75);
+        g.lineTo(L.x + Math.cos(a) * r1, LINE_Y + Math.sin(a) * r1 * 0.75);
+        g.stroke();
+      }
+    }
+
+    // Ball: squash at contact, stretch along the velocity in the air.
+    const p = pos(t);
+    let squash = 0;
+    for (const L of landings) {
+      const d = Math.abs(t - L.t);
+      if (d < 0.06) squash = Math.max(squash, 1 - d / 0.06);
+    }
+    let tf;
+    if (squash > 0.05) {
+      const sy = 1 - 0.42 * squash, sxs = 1 + 0.45 * squash;
+      const cy = Math.min(p.y, BASE) + R * (1 - sy) + lineOffset(p.x, t) * 0.6;
+      tf = `translate(${p.x}px, ${cy}px) scale(${sxs}, ${sy})`;
+    } else {
+      const speed = Math.hypot(p.vx, p.vy);
+      const st = 1 + Math.min(0.45, speed / 6000);
+      const ang = Math.atan2(p.vy, p.vx) * 180 / Math.PI;
+      tf = `translate(${p.x}px, ${p.y}px) rotate(${ang}deg) scale(${st}, ${1 / st})`;
+    }
+    ball.style.transform = tf;
+
+    // Timecode counts the film's real time as MM:SS:FF.
+    const f = Math.floor(t * fps + 1e-6);
+    const ff = f % fps, ss = Math.floor(f / fps) % 60, mm = Math.floor(f / fps / 60);
+    const z = (n) => String(n).padStart(2, '0');
+    tc.textContent = `${z(mm)}:${z(ss)}:${z(ff)}`;
+  }
+</script>
