@@ -63,7 +63,7 @@ const projects = []
 for (const a of about) {
   const dir = path.join(ROOT, 'projects', a.id)
   if (!fs.existsSync(path.join(dir, 'emile.json'))) { faults.push(`projects/${a.id} has no emile.json`); continue }
-  for (const k of ['title', 'line', 'kind', 'beats']) if (!a[k]) faults.push(`projects.json: ${a.id} has no ${k}`)
+  for (const k of ['title', 'line', 'genre', 'kind', 'beats']) if (!a[k]) faults.push(`projects.json: ${a.id} has no ${k}`)
   const film = JSON.parse(fs.readFileSync(path.join(dir, 'emile.json'), 'utf8'))
   const check = engine('check', dir)
   if (check.type !== 'result' || !check.value.ok) faults.push(`projects/${a.id}: ${check.message ?? check.value.problems.map(p => p.message).join('; ')}`)
@@ -87,7 +87,7 @@ for (const a of about) {
   const last = Math.max(...film.timeline.clips.map(c => c.frames[1]))
   const shown = p => { const { sha256, bytes } = entry(dir, p); return { path: `projects/${a.id}/${p}`, bytes, sha256 } }
   projects.push({
-    id: a.id, title: a.title, line: a.line, kind: a.kind,
+    id: a.id, title: a.title, line: a.line, genre: a.genre, kind: a.kind,
     seconds: last * film.project.fps.den / film.project.fps.num, aspect: film.project.aspect,
     preview: shown('preview.mp4'), poster: shown('preview.jpg'), beats: a.beats, prompts, files
   })

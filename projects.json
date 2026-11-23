@@ -3,6 +3,7 @@
     {
       "id": "running-rows",
       "title": "Running rows",
+      "genre": "Motion design",
       "kind": "Kinetic type",
       "line": "One loud word runs past itself in rows, a picture cuts in, then the word stands whole: for a drop, a sale or a launch.",
       "beats": {
@@ -14,6 +15,7 @@
     {
       "id": "typed-bloom",
       "title": "Typed bloom",
+      "genre": "Motion design",
       "kind": "ASCII",
       "line": "A picture set in characters and typed over again by a sweep of light, with a name on a bar: for tech, data, AI and anything mysterious.",
       "beats": {
@@ -25,6 +27,7 @@
     {
       "id": "round-and-round",
       "title": "Round and round",
+      "genre": "Motion design",
       "kind": "Logo",
       "line": "A name circles a picture in rings that turn against each other, then takes its place: for a logo, a badge or a soft launch.",
       "beats": {
@@ -36,6 +39,7 @@
     {
       "id": "torn-edition",
       "title": "Torn edition",
+      "genre": "Motion design",
       "kind": "Glitch",
       "line": "A picture is torn into bands and snaps back still, the word stamped on paper strips: for fashion, an edition or a night out.",
       "beats": {
@@ -47,6 +51,7 @@
     {
       "id": "quarter-turns",
       "title": "Quarter turns",
+      "genre": "Motion design",
       "kind": "Geometry",
       "line": "A wall of quarter circles turns in step and opens for a name: for design, architecture, food or any calm brand.",
       "beats": {
@@ -58,6 +63,7 @@
     {
       "id": "built-in-front-of-you",
       "title": "Built in front of you",
+      "genre": "Motion design",
       "kind": "Product demo",
       "line": "A button unfolds into a product screen, fills itself in, is pressed and folds back: for an app, a shop or a SaaS launch.",
       "beats": {
@@ -69,6 +75,7 @@
     {
       "id": "breathing-dots",
       "title": "Breathing dots",
+      "genre": "Motion design",
       "kind": "Halftone",
       "line": "A picture printed in dots that swell in rings, with a name rising under it: for beauty, flowers, music and print.",
       "beats": {
@@ -80,6 +87,7 @@
     {
       "id": "up-to-a-hundred",
       "title": "Up to a hundred",
+      "genre": "Motion design",
       "kind": "Numbers",
       "line": "A number climbs as a colour fills the frame, then bursts into the picture and the name: for a result, a milestone or sold out.",
       "beats": {
@@ -91,6 +99,7 @@
     {
       "id": "through-the-slits",
       "title": "Through the slits",
+      "genre": "Motion design",
       "kind": "Reveal",
       "line": "Nine slits open one after another on a picture, as in Reynaud’s drum, and a name stands in the middle: for a trailer, a place or a night.",
       "beats": {
@@ -102,6 +111,7 @@
     {
       "id": "frame-in-frame",
       "title": "Frame in frame",
+      "genre": "Motion design",
       "kind": "Loop",
       "line": "Frames fly out of the picture without end while it floats still in the middle: for sport, music and anything that loops.",
       "beats": {

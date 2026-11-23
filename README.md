@@ -25,7 +25,7 @@ Every picture is drawn in code: no photographs, no brands. The typefaces are Goo
 
 ## Adding one
 
-`projects/<id>/` is a whole Émile project with a `README.md` that says the movement, its beats and what may change, plus `preview.mp4` and `preview.jpg` (360 × 640, no sound). Its title, line, kind and beats go in `projects.json`, its prompts in `prompts/`. Then:
+`projects/<id>/` is a whole Émile project with a `README.md` that says the movement, its beats and what may change, plus `preview.mp4` and `preview.jpg` (360 × 640, no sound). Its title, line, genre (the kind of film, which Home sorts by: `Motion design` for now), kind (its technique: Kinetic type, ASCII…) and beats go in `projects.json`, its prompts in `prompts/`. Then:
 
 ```bash
 node scripts/build.mjs      # checks each project with Émile's engine (../Emile/engine) and writes index.json
